@@ -3,6 +3,7 @@
 bool isRunning = false;
 bool quit = false;
 int input = 0;
+char separatorStr[] = "*---------------------------------*";
 
 void initGame() {
     isRunning = true;

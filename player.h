@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "game.h"
 #include "gameProperties.h"
 
 void SetName(Player *target, char name[50]);

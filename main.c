@@ -1,9 +1,21 @@
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "game.h"
+#include "player.h"
 
 int main() {
+#ifdef _WIN32
+    SetConsoleCP(1250);
+    SetConsoleOutputCP(1250);
+#endif
+
     initGame();
+    Player *player = NewPlayer("Csanad", WARRIOR, 15, 11, 14, 8, 6, 12);
+    DisplayStats(player);
 
     while (isRunning) {
         mainMenu();

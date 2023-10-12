@@ -25,6 +25,6 @@ void exitGame();
 void askForInput();
 void inputError();
 void separator();
-char separatorStr[] = "*---------------------------------*";
+extern char separatorStr[];
 
 #endif //PROGNZH_THSTAM_GAME_H
