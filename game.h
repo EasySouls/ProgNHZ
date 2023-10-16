@@ -2,6 +2,12 @@
 #define PROGNZH_THSTAM_GAME_H
 #include <stdbool.h>
 #include <stdio.h>
+#include <conio.h>
+#include "gameProperties.h"
+#include "character.h"
+#include "io.h"
+
+extern const char filename[];
 
 // Game logic
 
@@ -9,22 +15,22 @@ extern bool isRunning;
 extern bool quit;
 extern int input;
 
+// Characters
+extern Character *character;
+
 // Gameplay functions
 
 void initGame();
 void mainMenu();
 
+Character* createCharacter();
+
 void travel();
 void rest();
 void levelUp();
-void saveCharacter();
+void printStats();
+void saveCharacter(Character *c);
 void loadCharacter();
 void exitGame();
-
-// Utility
-void askForInput();
-void inputError();
-void separator();
-extern char separatorStr[];
 
 #endif //PROGNZH_THSTAM_GAME_H

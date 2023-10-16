@@ -5,6 +5,8 @@ set(CMAKE_C_STANDARD 23)
 
 add_executable(ProgNZH_THSTAM main.c
         game.c
-        player.c
+        character.c
         gameProperties.h
+        io.c
+        io.h
 )

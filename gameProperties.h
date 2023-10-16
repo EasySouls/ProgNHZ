@@ -5,7 +5,7 @@ typedef enum ClassEnum {
     WARRIOR,
     RANGER,
     MAGE
-} class;
+} Class;
 
 typedef struct playerStructure {
     char name[50];
@@ -13,13 +13,14 @@ typedef struct playerStructure {
     int exp;
     int expToNext;
     int distanceTraveled;
+    int gold;
 
     int maxHp;
     int hp;
     int maxMana;
     int mana;
 
-    class class;
+    Class class;
 
     int strength;
     int dexterity;
@@ -31,7 +32,7 @@ typedef struct playerStructure {
     int damageMin;
     int damageMax;
     int armor;
-} Player;
+} Character;
 
 
 #endif //PROGNZH_THSTAM_GAMEPROPERTIES_H
