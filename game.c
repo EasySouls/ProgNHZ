@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "game.h"
+#include "debugmalloc.h"
 
 const char filename[] = "characters.txt";
 
@@ -80,17 +81,17 @@ void saveCharacter(Character *c) {
     FILE *outfile = fopen(filename, "a");
 
     if (outfile == NULL) {
-        fprintf(stderr, "Couldn't open characters.txt. The program will exit now.");
+        perror("Couldn't open characters.txt. The program will exit now.");
         exitGame();
     }
 
     if (character == NULL) {
-        fprintf(stderr, "The current character is null.");
+        perror("The current character is null. ");
     } else {
         // Writing to the file
-        fprintf(outfile, "%s %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+        fprintf(outfile, "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
                 c->name, c->level, c->exp, c->distanceTraveled, c->gold, c->hp, c->mana,
-                c->class, c->strength, c->dexterity, c->constitutuion, c->intelligence, c->wisdom, c->charisma);
+                c->class, c->strength, c->dexterity, c->constitution, c->intelligence, c->wisdom, c->charisma);
         printf("\n%s saved successfully!\n", character->name);
     }
 
@@ -103,13 +104,39 @@ void loadCharacter() {
 
     if (infile == NULL) {
         // Creates the file, since it didn't exist
-        fopen(filename, "w");
-        printf("No previously saved characters found.");
-    } else {
-        //TODO remake this
-        // Loading the character from the file
-        fread(character, sizeof(Character), 1, infile);
+        infile = fopen(filename, "w");
         fclose(infile);
+        printf("No previously saved characters found.");
+    }
+    else {
+        fseek(infile, 0, SEEK_END);
+        int filesize = ftell(infile);
+        if (filesize == 0) {
+            printf("No previously saved characters found.");
+            return;
+        }
+
+        CharacterBase base;
+
+        rewind(infile);
+
+        char name[50];
+        char c;
+        int index = 0;
+        c = (char)fgetc(infile);
+        while (c != ';') {
+            name[index] = c;
+            c = (char)fgetc(infile);
+            index++;
+        }
+
+        strcpy(base.name, name);
+
+        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n", &base.level, &base.exp, &base.distanceTraveled, &base.gold, &base.hp,
+               &base.mana, &base.class, &base.strength, &base.dexterity, &base.constitution, &base.intelligence, &base.wisdom, &base.charisma);
+        fclose(infile);
+
+        character = calcStats(&base);
 
         if (character == NULL) {
             printf("No previously saved characters found.");
@@ -124,10 +151,11 @@ Character *createCharacter() {
     char name[50];
 
     printf("\nWhat will be the name of your character?");
+    printf("\n>>");
     scanf("%49s", name);
 
     // Class selection
-    Class class = RANGER;
+    Class class;
     int choice;
 
     printf("\nSelect your class: ");
@@ -150,6 +178,7 @@ Character *createCharacter() {
             class = MAGE;
             break;
         default:
+            class = WARRIOR;
             fprintf(stderr, "Unhandled case in switch statement in game::createCharacter");
     }
 

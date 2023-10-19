@@ -7,6 +7,7 @@
 #include "game.h"
 #include "character.h"
 #include "io.h"
+#include "debugmalloc.h"
 
 int main(void) {
 #ifdef _WIN32

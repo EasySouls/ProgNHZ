@@ -24,7 +24,7 @@ typedef struct playerStructure {
 
     int strength;
     int dexterity;
-    int constitutuion;
+    int constitution;
     int intelligence;
     int wisdom;
     int charisma;
@@ -33,6 +33,26 @@ typedef struct playerStructure {
     int damageMax;
     int armor;
 } Character;
+
+typedef struct characterBase {
+    char name[50];
+    int level;
+    int exp;
+    int distanceTraveled;
+    int gold;
+
+    int hp;
+    int mana;
+
+    Class class;
+
+    int strength;
+    int dexterity;
+    int constitution;
+    int intelligence;
+    int wisdom;
+    int charisma;
+} CharacterBase;
 
 
 #endif //PROGNZH_THSTAM_GAMEPROPERTIES_H

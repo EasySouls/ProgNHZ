@@ -12,7 +12,8 @@ A történetet és szabályokat eldöntheted, de ne vállald túl magad a specifikációb
 
 ### TODOS
 - [x] Karakter struktúra 
-- [ ] Karakterek elmentése és betöltése szöveges fájlból
+- [x] Karakterek elmentése és betöltése szöveges fájlból
 - [ ] A fenti pont dinamikus adatszerkezettel mûködik
+- [ ] Induláskor opció arra, hogy betöltsön egy meglévõ karakter, vagy egy újat hozzon létre
 - [ ] Combat encounterek megvalósítása
 - [ ] Ellenfelek eltárolása encounterenként

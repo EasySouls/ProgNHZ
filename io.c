@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include "io.h"
+#include "debugmalloc.h"
 
 int askForInt(int min, int max) {
     while (true) {
         int num;
-        printf("\nChoice: ");
+        printf("\n>> ");
         int succeded = scanf("%d", &num);
         if (succeded != 1) {
             printf("\nEnter a number please!");
