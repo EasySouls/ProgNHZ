@@ -1,4 +1,5 @@
 #include <stdlib.h>
+
 #include "game.h"
 #include "debugmalloc.h"
 
@@ -78,7 +79,7 @@ void printStats() {
 }
 
 void saveCharacter(Character *c) {
-    FILE *outfile = fopen(filename, "a");
+    FILE *outfile = fopen(filename, "w");
 
     if (outfile == NULL) {
         perror("Couldn't open characters.txt. The program will exit now.");

@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "game.h"
-#include "character.h"
 #include "io.h"
 #include "debugmalloc.h"
 
@@ -16,9 +15,6 @@ int main(void) {
 #endif
 
     initGame();
-//    Character *player = newCharacter("Csanad", WARRIOR, 15, 11, 14, 8, 6, 12);
-//    displayStats(player);
-
 
     /* This loop is what operates the whole game.
      * The logic is that every function called will output something or ask for new inputs

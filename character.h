@@ -4,8 +4,64 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "game.h"
-#include "gameProperties.h"
+
+#include "inventory.h"
+
+typedef enum ClassEnum {
+    WARRIOR,
+    RANGER,
+    MAGE
+} Class;
+
+typedef struct playerStructure {
+    char name[50];
+    int level;
+    int exp;
+    int expToNext;
+    int distanceTraveled;
+    int gold;
+
+    Inventory *inventory;
+
+    int maxHp;
+    int hp;
+    int maxMana;
+    int mana;
+
+    Class class;
+
+    int strength;
+    int dexterity;
+    int constitution;
+    int intelligence;
+    int wisdom;
+    int charisma;
+
+    int damageMin;
+    int damageMax;
+    int armor;
+
+} Character;
+
+typedef struct characterBase {
+    char name[50];
+    int level;
+    int exp;
+    int distanceTraveled;
+    int gold;
+
+    int hp;
+    int mana;
+
+    Class class;
+
+    int strength;
+    int dexterity;
+    int constitution;
+    int intelligence;
+    int wisdom;
+    int charisma;
+} CharacterBase;
 
 Character* newCharacter(char name[50], Class class);
 Character* calcStats(CharacterBase *c);

@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <conio.h>
-#include "gameProperties.h"
+
 #include "character.h"
 #include "io.h"
 

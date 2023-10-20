@@ -82,6 +82,7 @@ Character *newCharacter(char *name, Class class) {
     tempPlayer->expToNext = 200;
     tempPlayer->level = 1;
     tempPlayer->gold = 100;
+    tempPlayer->inventory = malloc(sizeof(Inventory));
 
     return tempPlayer;
 }
@@ -128,6 +129,8 @@ Character *calcStats(CharacterBase *c) {
     temp->damageMin = getModifier(c->strength) * 4;
     temp->damageMax = getModifier(c->strength) * 5;
     temp->armor = 10 + getModifier(c->dexterity);
+
+    temp->inventory = malloc(sizeof(Inventory));
 
     return temp;
 }
