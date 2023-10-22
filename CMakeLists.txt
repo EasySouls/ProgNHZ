@@ -10,4 +10,6 @@ add_executable(ProgNZH_THSTAM main.c
         inventory.c
         location.c
         location.h
+        enemies.c
+        enemies.h
 )

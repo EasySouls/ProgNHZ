@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "game.h"
 #include "io.h"
 #include "debugmalloc.h"
@@ -14,6 +15,7 @@ int main(void) {
     SetConsoleOutputCP(1250);
 #endif
 
+    srand(time(0));
     initGame();
 
     /* This loop is what operates the whole game.

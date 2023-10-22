@@ -80,7 +80,6 @@ Character *newCharacter(char *name, Class class) {
     tempPlayer->distanceTraveled = 0;
     tempPlayer->exp = 0;
     tempPlayer->expToNext = 200;
-    tempPlayer->level = 1;
     tempPlayer->gold = 100;
     tempPlayer->inventory = malloc(sizeof(Inventory));
 
