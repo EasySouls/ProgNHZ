@@ -119,7 +119,7 @@ static void debugmalloc_strlcpy(char *dest, char const *src, size_t destsize) {
 }
 
 
-/* set the name of the log file for debugmalloc. empty filename
+/* set the name of the log file for debugmalloc. empty charactersFile
  * means logging to stderr. */
 static void debugmalloc_log_file(char const *logfilename) {
     if (logfilename == NULL)

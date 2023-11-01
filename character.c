@@ -1,10 +1,17 @@
 #include "character.h"
 #include "debugmalloc.h"
 
+/*
+ * Sets the target's name using strcpy
+ */
 void setName(Character *target, char *name) {
     strcpy(target->name, name);
 }
 
+/*
+ * Displays the stats of a player
+ * player: Pointer to the character whose stats you want to display
+ */
 void displayStats(Character *player) {
     printf("\nName: %s (Lvl: %d)", player->name, player->level);
     printf("\nExp: %d / %d", player->exp, player->expToNext);
@@ -19,7 +26,7 @@ void displayStats(Character *player) {
     printf("\nWisdom: %d", player->wisdom);
     printf("\nCharisma: %d", player->charisma);
     printf("\nDamage: %d - %d", player->damageMin, player->damageMax);
-    printf("\nArmor: %d", player->armor);
+    printf("\nArmor: %d", player->baseArmorClass);
     printf("\n");
 }
 
@@ -72,16 +79,27 @@ Character *newCharacter(char *name, Class class) {
 
     tempPlayer->hp = tempPlayer->maxHp;
     tempPlayer->mana = tempPlayer->maxMana;
-    tempPlayer->damageMin = getModifier(tempPlayer->strength) * 4;
-    tempPlayer->damageMax = getModifier(tempPlayer->strength) * 5;
-    tempPlayer->armor = 10 + getModifier(tempPlayer->dexterity);
+    tempPlayer->damageMin = getModifier(tempPlayer->strength) * 3;
+    tempPlayer->damageMax = getModifier(tempPlayer->strength) * 4;
+    tempPlayer->baseArmorClass = 8 + getModifier(tempPlayer->dexterity);
 
     // Assign the rest of the stats
     tempPlayer->distanceTraveled = 0;
     tempPlayer->exp = 0;
     tempPlayer->expToNext = 200;
     tempPlayer->gold = 100;
+
     tempPlayer->inventory = malloc(sizeof(Inventory));
+    tempPlayer->inventory->previous = NULL;
+    tempPlayer->inventory->current = NULL;
+    tempPlayer->inventory->next = NULL;
+    addItem(tempPlayer->inventory, HEALTH_POTION);
+    addItem(tempPlayer->inventory, MANA_POTION);
+
+    tempPlayer->armors[0] = (Armor){ HEAD, 0, "Empty"};
+    tempPlayer->armors[1] = (Armor){ CHEST, 0, "Empty"};
+    tempPlayer->armors[2] = (Armor){ ARMS, 0, "Empty"};
+    tempPlayer->armors[3] = (Armor){ LEGS, 0, "Empty"};
 
     return tempPlayer;
 }
@@ -127,11 +145,30 @@ Character *calcStats(CharacterBase *c) {
 
     temp->damageMin = getModifier(c->strength) * 4;
     temp->damageMax = getModifier(c->strength) * 5;
-    temp->armor = 10 + getModifier(c->dexterity);
+    temp->baseArmorClass = 10 + getModifier(c->dexterity);
 
-    temp->inventory = malloc(sizeof(Inventory));
+    for (int i = 0; i < 4; ++i) {
+        temp->armors[i].type = c->armors[i].type;
+        temp->armors[i].value = c->armors[i].value;
+        strcpy(temp->armors[i].name, c->armors[i].name);
+    }
+
+    //TODO Load inventory
 
     return temp;
+}
+
+int getArmorClass(Character *player) {
+    int armorClass = player->baseArmorClass;
+    for (int i = 0; i < 4; ++i) {
+        armorClass += player->armors[i].value;
+    }
+    return armorClass;
+}
+
+int getPlayerDamage(Character *player) {
+    //return rand() % (player->damageMin + player->damageMax + 1) + player->damageMin;
+    return rand() % (player->damageMax - player->damageMin) + player->damageMin;
 }
 
 

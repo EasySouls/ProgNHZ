@@ -3,7 +3,7 @@
 #include "game.h"
 #include "debugmalloc.h"
 
-const char filename[] = "characters.txt";
+const char charactersFile[] = "characters.txt";
 
 bool isRunning = false;
 bool quit = false;
@@ -17,21 +17,27 @@ void initGame() {
 
     if (character == NULL) {
         character = createCharacter();
+//        character->inventory = malloc(sizeof(Inventory));
+//        //character->armors = malloc(4 * sizeof(Armor));
+//        character->armors[0] = (Armor){ HEAD, 0, "Empty"};
+//        character->armors[1] = (Armor){ CHEST, 0, "Empty"};
+//        character->armors[2] = (Armor){ ARMS, 0, "Empty"};
+//        character->armors[3] = (Armor){ LEGS, 0, "Empty"};
     }
 }
 
 void mainMenu() {
-    // separator();
     printf("\nMenu");
     printf("\n[1]: Travel");
     printf("\n[2]: Rest");
     printf("\n[3]: Level up");
     printf("\n[4]: Display stats");
-    printf("\n[5]: Save character");
-    printf("\n[6]: Load character");
+    printf("\n[5]: Check inventory");
+    printf("\n[6]: Save character");
+    printf("\n[7]: Load character");
     printf("\n[0]: Exit game");
 
-    input = askForInt(0, 6);
+    input = askForInt(0, 7);
 
     switch (input) {
         case 1:
@@ -47,9 +53,12 @@ void mainMenu() {
             printStats();
             break;
         case 5:
-            saveCharacter(character);
+            displayInventory(character->inventory);
             break;
         case 6:
+            saveCharacter(character);
+            break;
+        case 7:
             loadCharacter();
             break;
         case 0:
@@ -62,7 +71,7 @@ void mainMenu() {
 }
 
 void travel() {
-
+    combatEncounter(character, 2);
 }
 
 void rest() {
@@ -79,7 +88,7 @@ void printStats() {
 }
 
 void saveCharacter(Character *c) {
-    FILE *outfile = fopen(filename, "w");
+    FILE *outfile = fopen(charactersFile, "w");
 
     if (outfile == NULL) {
         perror("Couldn't open characters.txt. The program will exit now.");
@@ -90,9 +99,15 @@ void saveCharacter(Character *c) {
         perror("The current character is null. ");
     } else {
         // Writing to the file
-        fprintf(outfile, "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
+        fprintf(outfile, "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
                 c->name, c->level, c->exp, c->distanceTraveled, c->gold, c->hp, c->mana,
                 c->class, c->strength, c->dexterity, c->constitution, c->intelligence, c->wisdom, c->charisma);
+        // Saving the armors
+        for (int i = 0; i < 4; ++i) {
+            fprintf(outfile, "%d;%d;%s;",
+                    character->armors[i].type, character->armors[i].value, character->armors[i].name);
+        }
+        fprintf(outfile, "\n");
         printf("\n%s saved successfully!\n", character->name);
     }
 
@@ -101,11 +116,11 @@ void saveCharacter(Character *c) {
 }
 
 void loadCharacter() {
-    FILE *infile = fopen(filename, "r");
+    FILE *infile = fopen(charactersFile, "r");
 
     if (infile == NULL) {
         // Creates the file, since it didn't exist
-        infile = fopen(filename, "w");
+        infile = fopen(charactersFile, "w");
         fclose(infile);
         printf("No previously saved characters found.");
     }
@@ -117,7 +132,7 @@ void loadCharacter() {
             return;
         }
 
-        CharacterBase base;
+        CharacterBase *base = malloc(sizeof(CharacterBase));
 
         rewind(infile);
 
@@ -131,16 +146,31 @@ void loadCharacter() {
             index++;
         }
 
-        strcpy(base.name, name);
+        strcpy(base->name, name);
 
-        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n", &base.level, &base.exp, &base.distanceTraveled, &base.gold, &base.hp,
-               &base.mana, &base.class, &base.strength, &base.dexterity, &base.constitution, &base.intelligence, &base.wisdom, &base.charisma);
+        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;", &base->level, &base->exp, &base->distanceTraveled, &base->gold, &base->hp,
+               &base->mana, &base->class, &base->strength, &base->dexterity, &base->constitution, &base->intelligence, &base->wisdom, &base->charisma);
+        // Reading the armors' data
+        for (int i = 0; i < 4; ++i) {
+            fscanf(infile, "%d;%d;", &base->armors[i].type, &base->armors[i].value);
+            char armorName[50];
+            int idx = 0;
+            c = (char)fgetc(infile);
+            while (c != ';') {
+                name[idx] = c;
+                c = (char)fgetc(infile);
+                idx++;
+            }
+            strcpy(base->armors[i].name, armorName);
+        }
         fclose(infile);
 
-        character = calcStats(&base);
+        character = calcStats(base);
+
+        free(base);
 
         if (character == NULL) {
-            printf("No previously saved characters found.");
+            perror("Cannot load character properly");
         } else {
             printf("\n%s loaded successfully!\n", character->name);
         }
@@ -194,6 +224,7 @@ Character *createCharacter() {
  * but we chose to quit
  */
 void exitGame() {
+    freeInventoryFromMemory(character->inventory);
     free(character);
     isRunning = false;
     quit = true;

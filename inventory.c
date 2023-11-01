@@ -2,21 +2,20 @@
 
 #include "debugmalloc.h"
 
-void displayInvetory(Inventory *node) {
-    while (node->current != NULL) {
-        printf("Name: %s\n", node->current->name);
-        printf("Description: %s\n", node->current->description);
-        if (node->current->health > 0)
-            printf("Health: %d\n", node->current->health);
-        if (node->current->mana > 0)
-            printf("Mana: %d\n", node->current->mana);
-        printf("Quantity: %d\n", node->current->quantity);
-        printf("Uses Left: %d\n", node->current->usesLeft);
+void displayInventory(Inventory *inventory) {
+    while (inventory->current != NULL) {
+        printf("Name: %s\n", inventory->current->name);
+        printf("Description: %s\n", inventory->current->description);
+        if (inventory->current->health > 0)
+            printf("Health: %d\n", inventory->current->health);
+        if (inventory->current->mana > 0)
+            printf("Mana: %d\n", inventory->current->mana);
+        printf("Quantity: %d\n", inventory->current->quantity);
 
-        // If the node points to another node, go to it and print
+        // If the inventory points to another inventory, go to it and print
         // it's item. Otherwise, end loop
-        if (node->next != NULL) {
-            node = node->next;
+        if (inventory->next != NULL) {
+            inventory = inventory->next;
         } else {
             return;
         }
@@ -26,22 +25,22 @@ void displayInvetory(Inventory *node) {
     printf("Inventory is empty.\n");
 }
 
-Inventory *findItem(Inventory *node, enum itemNumber number) {
-    if (node == NULL) {
+Inventory *findItem(Inventory *inventory, enum itemID number) {
+    if (inventory == NULL) {
         return NULL;
     }
 
-    while (node->current != NULL) {
+    while (inventory->current != NULL) {
         // Compare that item's id to our number
         // If it's a match, return the address of that node
-        if (node->current->id == number) {
-            return node;
+        if (inventory->current->id == number) {
+            return inventory;
         }
 
         // If the current item doesn't match and there is
         // another node, move to it
-        if (node->next != NULL) {
-            node = node->next;
+        if (inventory->next != NULL) {
+            inventory = inventory->next;
         } else {
             return NULL; // List ends
         }
@@ -50,7 +49,7 @@ Inventory *findItem(Inventory *node, enum itemNumber number) {
     return NULL; // List is empty
 }
 
-void addItem(Inventory *inventory, enum itemNumber number) {
+void addItem(Inventory *inventory, enum itemID number) {
     Inventory *previousNode;
     Inventory *searchResult;
 
@@ -63,8 +62,7 @@ void addItem(Inventory *inventory, enum itemNumber number) {
     }
 
     // Generate item if it doesn't exist
-    // Allocate memory for it and increase size of the linked list
-    Item *item = malloc(sizeof(Item));
+    Consumable *item = malloc(sizeof(Consumable));
 
     // Assign values to our item based on the enum parameter
     switch (number) {
@@ -73,22 +71,19 @@ void addItem(Inventory *inventory, enum itemNumber number) {
             strcpy(item->description, "Potion that heals 20 health points");
             item->health = 20;
             item->mana = 0;
-            item->usesLeft = 1;
             item->quantity = 1;
             item->id = number;
             break;
         case MANA_POTION:
             strcpy(item->name, "Mana potion");
-            strcpy(item->description, "Ption that restores 10 mana points");
+            strcpy(item->description, "Potion that restores 10 mana points");
             item->health = 0;
             item->mana = 10;
-            item->usesLeft = 1;
             item->quantity = 1;
             item->id = number;
             break;
     }
 
-    // Now we have to store it in our linked list
     // If the current node is unused, assign the item
     if (inventory->current == NULL) {
         inventory->current = item;
@@ -107,6 +102,7 @@ void addItem(Inventory *inventory, enum itemNumber number) {
 
         // Assign item to the current node
         inventory->current = item;
+        inventory->next = NULL;
     } else {
         // If the current node is occupied, search for the last node
         // The last node's "next" pointer will be null
@@ -127,10 +123,11 @@ void addItem(Inventory *inventory, enum itemNumber number) {
 
         // Assign item to the current node
         inventory->current = item;
+        inventory->next = NULL;
     }
 }
 
-void removeItem(Inventory *inventory, enum itemNumber number) {
+void removeItem(Inventory *inventory, enum itemID number) {
     Inventory *searchResult;
     Inventory *previous;
     Inventory *next;
@@ -164,3 +161,26 @@ void removeItem(Inventory *inventory, enum itemNumber number) {
         }
     }
 }
+
+const char *getItemName(itemID item) {
+    switch (item) {
+        case HEALTH_POTION:
+            return "Health potion";
+
+        case MANA_POTION:
+            return "Mana potion";
+    }
+}
+
+// Goes through each node in the inventory and frees them
+void freeInventoryFromMemory(Inventory *inventory) {
+    Inventory *temp;
+
+    while (inventory != NULL) {
+        temp = inventory;
+        inventory = inventory->next;
+        free(temp);
+    }
+}
+
+

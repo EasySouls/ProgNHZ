@@ -26,7 +26,9 @@ typedef struct enemyStruct {
     int armor;
 
     Class class;
-    enum itemNumber *lootTable;
+
+    enum itemID *lootTable;
+    int lootCount;
 } Enemy;
 
 int getDamage(Enemy *enemy);

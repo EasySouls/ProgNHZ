@@ -13,7 +13,11 @@ A történetet és szabályokat eldöntheted, de ne vállald túl magad a specifikációb
 ### TODOS
 - [x] Karakter struktúra 
 - [x] Karakterek elmentése és betöltése szöveges fájlból
+- [ ] Ne crasheljen a program, ha üres a characters.txt file
+- [ ] Inventory elmentése
+- [ ] Equipment elmentése
 - [ ] A fenti pont dinamikus adatszerkezettel mûködik
 - [ ] Induláskor opció arra, hogy betöltsön egy meglévõ karakter, vagy egy újat hozzon létre
 - [ ] Combat encounterek megvalósítása
 - [ ] Ellenfelek eltárolása encounterenként
+- [ ] Ellenfelek dinamikus tömbként tárolása, és ha egyikük meghal, új tömb kreálása

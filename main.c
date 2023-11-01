@@ -1,5 +1,5 @@
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <stdio.h>
@@ -28,10 +28,7 @@ int main(void) {
         mainMenu();
     }
 
-    if (quit) {
-        exit(0);
-    }
-    else {
+    if (!quit) {
         printf("\nYou died. Would you like to try again?");
         printf("\n[1]: Yes");
         printf("\n[2]: Nope");
@@ -40,9 +37,6 @@ int main(void) {
 
         if (input == 1) {
             // TODO restart the game
-        }
-        else if (input == 2) {
-            exit(0);
         }
     }
 }

@@ -1,34 +1,34 @@
 #ifndef PROGNZH_THSTAM_INVENTORY_H
 #define PROGNZH_THSTAM_INVENTORY_H
 
-enum itemNumber {
+typedef enum itemID {
     HEALTH_POTION,
     MANA_POTION
-};
+} itemID;
 
-typedef struct itemStruct {
+typedef struct consumableStruct {
     char name[50];
     char description[100];
     int health;
     int mana;
     int quantity;
-    int usesLeft;
-    int id;
-} Item;
+    enum itemID id;
+} Consumable;
 
 typedef struct itemNodeStruct {
-    Item *current;
+    Consumable *current;
     struct itemNodeStruct *previous;
     struct itemNodeStruct *next;
 } Inventory;
 
-void displayInvetory(Inventory *node);
+void displayInventory(Inventory *inventory);
+void addItem(Inventory *invetory, enum itemID number);
+void removeItem(Inventory *inventory, enum itemID number);
 
-Inventory* findItem(Inventory *node, enum itemNumber number);
+Inventory* findItem(Inventory *inventory, enum itemID number);
 
-void addItem(Inventory *invetory, enum itemNumber number);
+const char* getItemName(itemID item);
 
-void removeItem(Inventory *inventory, enum itemNumber number);
-
+void freeInventoryFromMemory(Inventory *inventory);
 
 #endif //PROGNZH_THSTAM_INVENTORY_H

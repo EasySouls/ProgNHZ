@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "inventory.h"
+#include "armor.h"
 
 typedef enum ClassEnum {
     WARRIOR,
@@ -22,6 +23,7 @@ typedef struct playerStructure {
     int gold;
 
     Inventory *inventory;
+    Armor armors[4];
 
     int maxHp;
     int hp;
@@ -39,7 +41,7 @@ typedef struct playerStructure {
 
     int damageMin;
     int damageMax;
-    int armor;
+    int baseArmorClass;
 
 } Character;
 
@@ -54,6 +56,7 @@ typedef struct characterBase {
     int mana;
 
     Class class;
+    Armor armors[4];
 
     int strength;
     int dexterity;
@@ -71,5 +74,7 @@ void displayStats(Character *player);
 
 const char* getAttributeName(int index);
 int getModifier(int attr);
+int getArmorClass(Character *player);
+int getPlayerDamage(Character *player);
 
 #endif //PROGNZH_THSTAM_CHARACTER_H

@@ -9,7 +9,7 @@ add_executable(ProgNZH_THSTAM main.c
         io.c
         inventory.c
         location.c
-        location.h
         enemies.c
-        enemies.h
+        encounter.c
+        armor.c
 )

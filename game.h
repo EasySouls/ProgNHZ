@@ -6,8 +6,9 @@
 
 #include "character.h"
 #include "io.h"
+#include "encounter.h"
 
-extern const char filename[];
+extern const char charactersFile[];
 
 // Game logic
 

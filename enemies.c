@@ -64,7 +64,14 @@ Enemy *generateEnemy(int level, Class class, char *name) {
     enemy->damageMin = getModifier(enemy->strength) * 4;
     enemy->damageMax = getModifier(enemy->strength) * 5;
     enemy->armor = 8 + getModifier(enemy->dexterity);
-    enemy->lootTable = malloc(sizeof(int));
+
+    // TODO Generate loot randomly
+    enemy->lootCount = 2;
+    enemy->lootTable = malloc(enemy->lootCount * sizeof(itemID));
+    enemy->lootTable[0] = HEALTH_POTION;
+    enemy->lootTable[1] = MANA_POTION;
+
+    return enemy;
 }
 
 void setEnemyName(Enemy *target, char *name) {
