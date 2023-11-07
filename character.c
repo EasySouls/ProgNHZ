@@ -26,7 +26,7 @@ void displayStats(Character *player) {
     printf("\nWisdom: %d", player->wisdom);
     printf("\nCharisma: %d", player->charisma);
     printf("\nDamage: %d - %d", player->damageMin, player->damageMax);
-    printf("\nArmor: %d", player->baseArmorClass);
+    printf("\nArmor: %d", getArmorClass(player));
     printf("\n");
 }
 
@@ -45,6 +45,9 @@ Character *newCharacter(char *name, Class class) {
             tempPlayer->intelligence = 8;
             tempPlayer->wisdom = 9;
             tempPlayer->charisma = 13;
+
+            tempPlayer->damageMin = getModifier(tempPlayer->strength) * 2;
+            tempPlayer->damageMax = getModifier(tempPlayer->strength) * 3;
             break;
         case RANGER:
             tempPlayer->class = RANGER;
@@ -54,6 +57,9 @@ Character *newCharacter(char *name, Class class) {
             tempPlayer->intelligence = 10;
             tempPlayer->wisdom = 13;
             tempPlayer->charisma = 12;
+
+            tempPlayer->damageMin = getModifier(tempPlayer->dexterity) * 2;
+            tempPlayer->damageMax = getModifier(tempPlayer->dexterity) * 3;
             break;
         case MAGE:
             tempPlayer->class = WARRIOR;
@@ -63,6 +69,9 @@ Character *newCharacter(char *name, Class class) {
             tempPlayer->intelligence = 17;
             tempPlayer->wisdom = 15;
             tempPlayer->charisma = 14;
+
+            tempPlayer->damageMin = getModifier(tempPlayer->intelligence) * 2;
+            tempPlayer->damageMax = getModifier(tempPlayer->intelligence) * 3;
             break;
     }
 
@@ -79,8 +88,7 @@ Character *newCharacter(char *name, Class class) {
 
     tempPlayer->hp = tempPlayer->maxHp;
     tempPlayer->mana = tempPlayer->maxMana;
-    tempPlayer->damageMin = getModifier(tempPlayer->strength) * 3;
-    tempPlayer->damageMax = getModifier(tempPlayer->strength) * 4;
+
     tempPlayer->baseArmorClass = 8 + getModifier(tempPlayer->dexterity);
 
     // Assign the rest of the stats
@@ -100,6 +108,8 @@ Character *newCharacter(char *name, Class class) {
     tempPlayer->armors[1] = (Armor){ CHEST, 0, "Empty"};
     tempPlayer->armors[2] = (Armor){ ARMS, 0, "Empty"};
     tempPlayer->armors[3] = (Armor){ LEGS, 0, "Empty"};
+
+    tempPlayer->canRest = false;
 
     return tempPlayer;
 }
@@ -143,8 +153,21 @@ Character *calcStats(CharacterBase *c) {
     temp->wisdom = c->wisdom;
     temp->charisma = c->charisma;
 
-    temp->damageMin = getModifier(c->strength) * 4;
-    temp->damageMax = getModifier(c->strength) * 5;
+    switch (c->class) {
+        case WARRIOR:
+            temp->damageMin = getModifier(c->strength) * 2;
+            temp->damageMax = getModifier(c->strength) * 3;
+            break;
+        case RANGER:
+            temp->damageMin = getModifier(c->dexterity) * 2;
+            temp->damageMax = getModifier(c->dexterity) * 3;
+            break;
+        case MAGE:
+            temp->damageMin = getModifier(c->intelligence) * 2;
+            temp->damageMax = getModifier(c->intelligence) * 3;
+            break;
+    }
+
     temp->baseArmorClass = 10 + getModifier(c->dexterity);
 
     for (int i = 0; i < 4; ++i) {
@@ -153,6 +176,7 @@ Character *calcStats(CharacterBase *c) {
         strcpy(temp->armors[i].name, c->armors[i].name);
     }
 
+    temp->canRest = c->canRest;
     //TODO Load inventory
 
     return temp;
@@ -169,6 +193,54 @@ int getArmorClass(Character *player) {
 int getPlayerDamage(Character *player) {
     //return rand() % (player->damageMin + player->damageMax + 1) + player->damageMin;
     return rand() % (player->damageMax - player->damageMin) + player->damageMin;
+}
+
+void getExp(Character *player, int amount) {
+    player->exp += amount;
+}
+
+void levelUpCharacter(Character *player, int attribute) {
+    switch (attribute) {
+        case 1:
+            player->strength++;
+            break;
+        case 2:
+            player->dexterity++;
+            break;
+        case 3:
+            player->constitution++;
+            break;
+        case 4:
+            player->intelligence++;
+            break;
+        case 5:
+            player->wisdom++;
+            break;
+        case 6:
+            player->charisma++;
+            break;
+        default:
+            perror("Unhandled switch case in levelUpCharacter");
+    }
+}
+
+void updateStats(Character *player) {
+    player->maxHp = (player->level * 20) + 5 * getModifier(player->constitution);
+    int possibleMana = 5 + 3 * getModifier(player->intelligence) + 2 * getModifier(player->wisdom);
+    if (possibleMana > 5) {
+        player->maxMana = 5 + 3 * getModifier(player->intelligence) + 2 * getModifier(player->wisdom);
+    } else {
+        player->maxMana = 5;
+    }
+
+    player->damageMin = getModifier(player->strength) * 3;
+    player->damageMax = getModifier(player->strength) * 4;
+
+    player->expToNext = (player->level - 1) * 500 + 200;
+}
+
+void setCanRest(Character *player, int canRest) {
+    player->canRest = canRest;
 }
 
 

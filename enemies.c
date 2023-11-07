@@ -65,6 +65,8 @@ Enemy *generateEnemy(int level, Class class, char *name) {
     enemy->damageMax = getModifier(enemy->strength) * 5;
     enemy->armor = 8 + getModifier(enemy->dexterity);
 
+    enemy->expAmount = enemy->level * 20;
+
     // TODO Generate loot randomly
     enemy->lootCount = 2;
     enemy->lootTable = malloc(enemy->lootCount * sizeof(itemID));

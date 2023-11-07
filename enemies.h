@@ -27,6 +27,8 @@ typedef struct enemyStruct {
 
     Class class;
 
+    int expAmount;
+
     enum itemID *lootTable;
     int lootCount;
 } Enemy;

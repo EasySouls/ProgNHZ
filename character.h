@@ -43,6 +43,7 @@ typedef struct playerStructure {
     int damageMax;
     int baseArmorClass;
 
+    bool canRest;
 } Character;
 
 typedef struct characterBase {
@@ -64,6 +65,8 @@ typedef struct characterBase {
     int intelligence;
     int wisdom;
     int charisma;
+
+    int canRest;
 } CharacterBase;
 
 Character* newCharacter(char name[50], Class class);
@@ -76,5 +79,10 @@ const char* getAttributeName(int index);
 int getModifier(int attr);
 int getArmorClass(Character *player);
 int getPlayerDamage(Character *player);
+
+void getExp(Character *player, int amount);
+void levelUpCharacter(Character *player, int attribute);
+void updateStats(Character *player);
+void setCanRest(Character *player, int canRest);
 
 #endif //PROGNZH_THSTAM_CHARACTER_H

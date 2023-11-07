@@ -172,13 +172,15 @@ const char *getItemName(itemID item) {
     }
 }
 
-// Goes through each node in the inventory and frees them
+// Goes through each node in the inventory and frees the consumable inside,
+// and then the node itself
 void freeInventoryFromMemory(Inventory *inventory) {
     Inventory *temp;
 
     while (inventory != NULL) {
         temp = inventory;
         inventory = inventory->next;
+        free(temp->current);
         free(temp);
     }
 }

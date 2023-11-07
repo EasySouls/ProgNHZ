@@ -17,12 +17,6 @@ void initGame() {
 
     if (character == NULL) {
         character = createCharacter();
-//        character->inventory = malloc(sizeof(Inventory));
-//        //character->armors = malloc(4 * sizeof(Armor));
-//        character->armors[0] = (Armor){ HEAD, 0, "Empty"};
-//        character->armors[1] = (Armor){ CHEST, 0, "Empty"};
-//        character->armors[2] = (Armor){ ARMS, 0, "Empty"};
-//        character->armors[3] = (Armor){ LEGS, 0, "Empty"};
     }
 }
 
@@ -75,11 +69,45 @@ void travel() {
 }
 
 void rest() {
+    if (character->canRest) {
+        int restRoll = roll();
+        if (restRoll == 20) {
+            character->hp = character->maxHp;
+            printf("\n%s has been healed to full hp.", character->name);
+        }
+        else if (restRoll == 1) {
+            printf("\n%s slept really bad and couln't regain any hitpoints.", character->name);
+        }
+        else {
+            character->hp += restRoll;
+            if (character->hp > character->maxHp)
+                character->hp = character->maxHp;
 
+            printf("\n%s has recovered %d hitpoints.", character->name, restRoll);
+        }
+        setCanRest(character, false);
+    }
+    else {
+        printf("\n%s cannot rest now. Adventure further to be able to rest.", character->name);
+    }
 }
 
 void levelUp() {
+    if (character->exp < character->expToNext) {
+        int expNeeded = character->expToNext - character->exp;
+        printf("\nNot enought exp to level up! %d more points needed.", expNeeded);
+        return;
+    }
 
+    printf("\nChoose a stat to upgrade:");
+    for (int i = 0; i < 6; ++i) {
+        printf("\n[%d]: %s", i+1, getAttributeName(i));
+    }
+
+    input = askForInt(1, 6);
+    character->exp -= character->expToNext;
+    levelUpCharacter(character, input);
+    updateStats(character);
 }
 
 // Prints the stats of the player to the standard output
@@ -99,9 +127,9 @@ void saveCharacter(Character *c) {
         perror("The current character is null. ");
     } else {
         // Writing to the file
-        fprintf(outfile, "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
+        fprintf(outfile, "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
                 c->name, c->level, c->exp, c->distanceTraveled, c->gold, c->hp, c->mana,
-                c->class, c->strength, c->dexterity, c->constitution, c->intelligence, c->wisdom, c->charisma);
+                c->class, c->strength, c->dexterity, c->constitution, c->intelligence, c->wisdom, c->charisma, c->canRest);
         // Saving the armors
         for (int i = 0; i < 4; ++i) {
             fprintf(outfile, "%d;%d;%s;",
@@ -131,10 +159,9 @@ void loadCharacter() {
             printf("No previously saved characters found.");
             return;
         }
+        rewind(infile);
 
         CharacterBase *base = malloc(sizeof(CharacterBase));
-
-        rewind(infile);
 
         char name[50];
         char c;
@@ -148,8 +175,8 @@ void loadCharacter() {
 
         strcpy(base->name, name);
 
-        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;", &base->level, &base->exp, &base->distanceTraveled, &base->gold, &base->hp,
-               &base->mana, &base->class, &base->strength, &base->dexterity, &base->constitution, &base->intelligence, &base->wisdom, &base->charisma);
+        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;", &base->level, &base->exp, &base->distanceTraveled, &base->gold, &base->hp,
+               &base->mana, &base->class, &base->strength, &base->dexterity, &base->constitution, &base->intelligence, &base->wisdom, &base->charisma, &base->canRest);
         // Reading the armors' data
         for (int i = 0; i < 4; ++i) {
             fscanf(infile, "%d;%d;", &base->armors[i].type, &base->armors[i].value);

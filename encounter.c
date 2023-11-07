@@ -5,6 +5,7 @@
 void combatEncounter(Character *player, int nrOfEnemies) {
     Enemy **enemies = malloc(nrOfEnemies * sizeof(Enemy));
     int encounterLevel = player->level;
+    int encounterExpAmount = encounterLevel * 100;
 
     for (int i = 0; i < nrOfEnemies; ++i) {
         enemies[i] = generateEnemy(encounterLevel, WARRIOR, "");
@@ -32,17 +33,21 @@ void combatEncounter(Character *player, int nrOfEnemies) {
 
             switch (choice) {
                 case 1:
+                    // Fight
                     listEnemies(enemies, nrOfEnemies);
                     choice = askForInt(1, nrOfEnemies);
                     fight(player, enemies[choice - 1]);
                     break;
                 case 2:
+                    // Use item
                     break;
                 case 3:
+                    // Escape
                     playerRoll = roll() + getModifier(player->dexterity);
                     if (playerRoll >= encounterDifficulty) {
                         printf("\nYou managed to escape from combat (%d).\n", playerRoll);
                         escaped = true;
+                        setCanRest(player, true);
                     }
                     else {
                         printf("\nYou failed to escape (%d).\n", playerRoll);
@@ -97,12 +102,21 @@ void combatEncounter(Character *player, int nrOfEnemies) {
         }
     }
 
-    //TODO what happens when combat ends?
-    // Get exp, items, etc
+    // In case of victory, the player gets the exp for the enemies
+    // and for the encounter itself
+    if (hasWon) {
+        for (int i = 0; i < nrOfEnemies; ++i) {
+            getExp(player, enemies[i]->expAmount);
+        }
+
+        getExp(player, encounterExpAmount);
+        setCanRest(player, true);
+    }
 
     // Frees the loot table of the enemies, then the enemies pointer itself
     for (int i = 0; i < nrOfEnemies; ++i) {
         free(enemies[i]->lootTable);
+        free(enemies[i]);
     }
     free(enemies);
 }
@@ -118,20 +132,27 @@ void listEnemies(Enemy **enemies, int nrOfEnemies) {
 
 void fight(Character *player, Enemy *enemy) {
     int enemyArmorClass = enemy->armor;
-    int playerRoll;
+    int playerRoll = roll();
+    int modifiedRoll;
     switch (player->class) {
         case WARRIOR:
-            playerRoll = roll() + getModifier(player->strength);
+            modifiedRoll = playerRoll + getModifier(player->strength);
             break;
         case RANGER:
-            playerRoll = roll() + getModifier(player->dexterity);
+            modifiedRoll = playerRoll + getModifier(player->dexterity);
             break;
         case MAGE:
-            playerRoll = roll() + getModifier(player->intelligence);
+            modifiedRoll = playerRoll + getModifier(player->intelligence);
             break;
     }
 
-    if (playerRoll > enemyArmorClass) {
+    if (playerRoll == 20) {
+         // Crit
+    }
+    else if (playerRoll == 1) {
+        // Crit miss
+    }
+    else if (modifiedRoll > enemyArmorClass) {
         int damage = getPlayerDamage(player);
         enemy->hp -= damage;
         printf("\nYou hit(%d) %s, and dealt %d damage.", playerRoll, enemy->name, damage);
@@ -141,11 +162,11 @@ void fight(Character *player, Enemy *enemy) {
     }
 
     if (enemy->hp <= 0) {
+        printf("\n%s has died.", enemy->name);
         for (int i = 0; i < enemy->lootCount; ++i) {
             printf("\n%s acquired from %s.", getItemName(enemy->lootTable[i]), enemy->name);
             addItem(player->inventory, enemy->lootTable[i]);
         }
-        printf("\n%s has died.", enemy->name);
     }
 
 }
