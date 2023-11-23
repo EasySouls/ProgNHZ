@@ -70,7 +70,7 @@ typedef struct characterBase {
 } CharacterBase;
 
 Character* newCharacter(char name[50], Class class);
-Character* calcStats(CharacterBase *c);
+Character* initLoadedCharacter(CharacterBase *c);
 
 void setName(Character *target, char name[50]);
 void displayStats(Character *player);

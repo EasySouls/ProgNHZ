@@ -4,11 +4,6 @@
 #include "enemies.h"
 #include "io.h"
 
-typedef struct combatEncounterStruct {
-    Enemy *enemies;
-    int encounterLevel;
-} Encounter;
-
 void combatEncounter(Character *player, int nrOfEnemies);
 
 void listEnemies(Enemy **enemies, int nrOfEnemies);

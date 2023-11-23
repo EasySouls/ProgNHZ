@@ -27,8 +27,8 @@ void mainMenu() {
     printf("\n[3]: Level up");
     printf("\n[4]: Display stats");
     printf("\n[5]: Check inventory");
-    printf("\n[6]: Save character");
-    printf("\n[7]: Load character");
+    printf("\n[6]: Equipped items");
+    printf("\n[7]: Save and Load Submenu");
     printf("\n[0]: Exit game");
 
     input = askForInt(0, 7);
@@ -36,6 +36,7 @@ void mainMenu() {
     switch (input) {
         case 1:
             travel();
+            pressEnter();
             break;
         case 2:
             rest();
@@ -45,15 +46,17 @@ void mainMenu() {
             break;
         case 4:
             printStats();
+            pressEnter();
             break;
         case 5:
             displayInventory(character->inventory);
+            pressEnter();
             break;
         case 6:
-            saveCharacter(character);
+
             break;
         case 7:
-            loadCharacter();
+            saveAndLoadSubmenu();
             break;
         case 0:
             exitGame();
@@ -143,6 +146,13 @@ void saveCharacter(Character *c) {
 
 }
 
+/*
+ * Loads a character from the file containing the characters
+ * If the file doesn't exist, creates it
+ * If the file does exist, it checks whether it is empty. If empty, or the file is nonexistent,
+ * it returns, otherwise reads the character into a CharacterBase struct. Then calls the initLoadedCharacter function,
+ * which then sets the character variable
+*/
 void loadCharacter() {
     FILE *infile = fopen(charactersFile, "r");
 
@@ -164,15 +174,7 @@ void loadCharacter() {
         CharacterBase *base = malloc(sizeof(CharacterBase));
 
         char name[50];
-        char c;
-        int index = 0;
-        c = (char)fgetc(infile);
-        while (c != ';') {
-            name[index] = c;
-            c = (char)fgetc(infile);
-            index++;
-        }
-
+        fscanf(infile, "%[^;];", name);
         strcpy(base->name, name);
 
         fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;", &base->level, &base->exp, &base->distanceTraveled, &base->gold, &base->hp,
@@ -181,18 +183,12 @@ void loadCharacter() {
         for (int i = 0; i < 4; ++i) {
             fscanf(infile, "%d;%d;", &base->armors[i].type, &base->armors[i].value);
             char armorName[50];
-            int idx = 0;
-            c = (char)fgetc(infile);
-            while (c != ';') {
-                name[idx] = c;
-                c = (char)fgetc(infile);
-                idx++;
-            }
+            fscanf(infile, "%[^;];", armorName);
             strcpy(base->armors[i].name, armorName);
         }
         fclose(infile);
 
-        character = calcStats(base);
+        character = initLoadedCharacter(base);
 
         free(base);
 
@@ -218,11 +214,27 @@ Character *createCharacter() {
 
     printf("\nSelect your class: ");
     printf("\n[1]: WARRIOR");
-    printf("\n -- warrior desc --");
+    printf("\nDescription:\n"
+           "For some, their rage springs from a communion with fierce animal spirits. "
+           "Others draw from a roiling reservoir of anger at a world full of pain. "
+           "For every barbarian, rage is a power that fuels not just a battle frenzy but also uncanny reflexes,"
+           " resilience, and feats of strength.");
+    printf("\nStats:\n"
+           "Strength: 16, Dexterity: 12, Constitution: 15, Intelligence: 8, Wisdom: 8, Charisma: 13\n");
     printf("\n[2]: RANGER");
-    printf("\n -- ranger desc --");
+    printf("\nDescription:\n"
+           "Far from the bustle of cities and towns, past the hedges that shelter the most "
+           "distant farms from the terrors of the wild, amid the dense-packed trees of trackless "
+           "forests and across wide and empty plains, rangers keep their unending watch.\n");
+    printf("\nStats:\n"
+           "Strength: 14, Dexterity: 18, Constitution: 12, Intelligence: 10, Wisdom: 13, Charisma: 12\n");
     printf("\n[3]: MAGE");
-    printf("\n -- mage desc --");
+    printf("\nDescription:\nWizards’ lives are seldom mundane. The closest a wizard is likely to "
+           "come to an ordinary life is working as a sage or lecturer in a library or university, "
+           "teaching others the secrets of the multiverse. Other wizards sell their services as diviners, "
+           "serve in military forces, or pursue lives of crime or domination.\n");
+    printf("\nStats:\n"
+           "Strength: 8, Dexterity: 11, Constitution: 8, Intelligence: 17, Wisdom: 15, Charisma: 14\n");
     choice = askForInt(1, 3);
 
     switch (choice) {
@@ -242,6 +254,30 @@ Character *createCharacter() {
 
     // Creating a new character struct which has their values set based upon the given attributes
     return newCharacter(name, class);
+}
+
+void saveAndLoadSubmenu() {
+    printf("\nSave and Load Submenu\n");
+    printf("[1]: Save current character\n");
+    printf("[2]: Load saved character\n");
+    printf("[3]: Create a new character\n");
+    printf("[4]: Exit from submenu\n");
+    input = askForInt(1, 3);
+
+    switch (input) {
+        case 1:
+            saveCharacter(character);
+            break;
+        case 2:
+            loadCharacter();
+            break;
+        case 3:
+            character = createCharacter();
+            break;
+        case 4:
+        default:
+            break;
+    }
 }
 
 /* Exits the game

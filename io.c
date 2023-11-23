@@ -17,3 +17,8 @@ int askForInt(int min, int max) {
         }
     }
 }
+
+void pressEnter() {
+    printf("\n -------- Press Enter to continue --------");
+    getchar();
+}

@@ -1,9 +1,7 @@
 #include "character.h"
 #include "debugmalloc.h"
 
-/*
- * Sets the target's name using strcpy
- */
+// Sets the target Character struct's name using strcpy
 void setName(Character *target, char *name) {
     strcpy(target->name, name);
 }
@@ -30,6 +28,7 @@ void displayStats(Character *player) {
     printf("\n");
 }
 
+// Constructs a new Character struct based on the class chosen by the user
 Character *newCharacter(char *name, Class class) {
     // Allocate memory to player pointer
     Character *tempPlayer = malloc(sizeof(Character));
@@ -97,10 +96,8 @@ Character *newCharacter(char *name, Class class) {
     tempPlayer->expToNext = 200;
     tempPlayer->gold = 100;
 
-    tempPlayer->inventory = malloc(sizeof(Inventory));
-    tempPlayer->inventory->previous = NULL;
-    tempPlayer->inventory->current = NULL;
-    tempPlayer->inventory->next = NULL;
+    // Allocates memory for the first item
+    tempPlayer->inventory = initInventory();
     addItem(tempPlayer->inventory, HEALTH_POTION);
     addItem(tempPlayer->inventory, MANA_POTION);
 
@@ -124,7 +121,17 @@ int getModifier(int attr) {
     return (attr - 10) / 2;
 }
 
-Character *calcStats(CharacterBase *c) {
+// Accepts a CharacterBase struct as parameter, which is the data type that gets constructed inside
+// game::loadCharacter()
+// Then initializes the Character from the loaded struct, by the same rules that apply to a newly created character.
+Character *initLoadedCharacter(CharacterBase *c) {
+    if (c == NULL) {
+        perror("CharacterBase is nullptr in character::initLoadedCharacter");
+
+        // In case of a nullptr, it returns a newly created character
+        return newCharacter("Unknown", WARRIOR);
+    }
+
     Character *temp = malloc(sizeof(Character));
 
     setName(temp, c->name);
@@ -178,10 +185,12 @@ Character *calcStats(CharacterBase *c) {
 
     temp->canRest = c->canRest;
     //TODO Load inventory
+    temp->inventory = initInventory();
 
     return temp;
 }
 
+// The player's armor class consists of the baseArmorClass and the equipped armors' values
 int getArmorClass(Character *player) {
     int armorClass = player->baseArmorClass;
     for (int i = 0; i < 4; ++i) {
@@ -190,8 +199,8 @@ int getArmorClass(Character *player) {
     return armorClass;
 }
 
+// Returns a random value between the minDamage and the maxDamage
 int getPlayerDamage(Character *player) {
-    //return rand() % (player->damageMin + player->damageMax + 1) + player->damageMin;
     return rand() % (player->damageMax - player->damageMin) + player->damageMin;
 }
 
@@ -199,6 +208,7 @@ void getExp(Character *player, int amount) {
     player->exp += amount;
 }
 
+// param attribute needs to be between 1 and 6
 void levelUpCharacter(Character *player, int attribute) {
     switch (attribute) {
         case 1:
@@ -222,8 +232,14 @@ void levelUpCharacter(Character *player, int attribute) {
         default:
             perror("Unhandled switch case in levelUpCharacter");
     }
+
+    player->exp -= player->expToNext;
+    player->level++;
+    player->expToNext = player->expToNext + player->level * 300;
 }
 
+// This method needs to be called whenever a character's main stats change, otherwise the others stats
+// won't be affected by it. For example, after level up
 void updateStats(Character *player) {
     player->maxHp = (player->level * 20) + 5 * getModifier(player->constitution);
     int possibleMana = 5 + 3 * getModifier(player->intelligence) + 2 * getModifier(player->wisdom);

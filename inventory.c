@@ -49,6 +49,9 @@ Inventory *findItem(Inventory *inventory, enum itemID number) {
     return NULL; // List is empty
 }
 
+// If the item is already present in the inventory, increases its quantity by one,
+// otherwise adds the item to the linked list
+// Automatically allocates memory for the newly added item
 void addItem(Inventory *inventory, enum itemID number) {
     Inventory *previousNode;
     Inventory *searchResult;
@@ -73,6 +76,7 @@ void addItem(Inventory *inventory, enum itemID number) {
             item->mana = 0;
             item->quantity = 1;
             item->id = number;
+            item->use = restoreHp;
             break;
         case MANA_POTION:
             strcpy(item->name, "Mana potion");
@@ -81,6 +85,7 @@ void addItem(Inventory *inventory, enum itemID number) {
             item->mana = 10;
             item->quantity = 1;
             item->id = number;
+            item->use = restoreMana;
             break;
     }
 
@@ -88,19 +93,10 @@ void addItem(Inventory *inventory, enum itemID number) {
     if (inventory->current == NULL) {
         inventory->current = item;
     } else if (inventory->next == NULL) {
-        // Allocate memory for the next pointer
         inventory->next = malloc(sizeof(Inventory));
 
-        // Store location of the current node
-        previousNode = inventory;
-
-        // Move to the next node
         inventory = inventory->next;
 
-        // Link the current node to the previous one
-        inventory->previous = previousNode;
-
-        // Assign item to the current node
         inventory->current = item;
         inventory->next = NULL;
     } else {
@@ -117,9 +113,6 @@ void addItem(Inventory *inventory, enum itemID number) {
 
         // Move to the next node
         inventory = inventory->next;
-
-        // Link the current node to the previous one
-        inventory->previous = previousNode;
 
         // Assign item to the current node
         inventory->current = item;
@@ -141,22 +134,14 @@ void removeItem(Inventory *inventory, enum itemID number) {
 
         // If reduction results in 0 quantity, remove item entirely.
         if (searchResult->current->quantity <= 0) {
-            previous = searchResult->previous;
             next = searchResult->next;
 
             // Free the item and then the node containing it.
             free(searchResult->current);
             free(searchResult);
 
-            // Switch linked list together.
-            // We can't assign the next/previous members if the itemNode is null.
-            if (previous != NULL) {
-                searchResult = previous;
-                searchResult->next = next;
-            }
             if (next != NULL) {
                 searchResult = next;
-                searchResult->previous = previous;
             }
         }
     }
@@ -170,6 +155,13 @@ const char *getItemName(itemID item) {
         case MANA_POTION:
             return "Mana potion";
     }
+}
+
+Inventory* initInventory() {
+    Inventory *inventory = malloc(sizeof(Inventory));
+    inventory->current = NULL;
+    inventory->next = NULL;
+    return inventory;
 }
 
 // Goes through each node in the inventory and frees the consumable inside,

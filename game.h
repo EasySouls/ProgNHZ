@@ -7,6 +7,7 @@
 #include "character.h"
 #include "io.h"
 #include "encounter.h"
+#include "inventory.h"
 
 extern const char charactersFile[];
 
@@ -32,6 +33,7 @@ void levelUp();
 void printStats();
 void saveCharacter(Character *c);
 void loadCharacter();
+void saveAndLoadSubmenu();
 void exitGame();
 
 #endif //PROGNZH_THSTAM_GAME_H

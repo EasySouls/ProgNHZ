@@ -93,9 +93,9 @@ void combatEncounter(Character *player, int nrOfEnemies) {
                 if (enemyRoll > getArmorClass(player)) {
                     int damage = getDamage(enemies[i]);
                     player->hp -= damage;
-                    printf("\n%s dealt %d damage to you.\n", enemies[i]->name, damage);
+                    printf("\n%s dealt %d damage to you (%d).\n", enemies[i]->name, damage, enemyRoll);
                 } else {
-                    printf("\n%s missed his attack.\n", enemies[i]->name);
+                    printf("\n%s missed his attack (%d).\n", enemies[i]->name, enemyRoll);
                 }
             }
             playerTurn = true;
@@ -148,9 +148,13 @@ void fight(Character *player, Enemy *enemy) {
 
     if (playerRoll == 20) {
          // Crit
+         int critDamage = getPlayerDamage(player) * 2;
+         enemy->hp -= critDamage;
+        printf("\nYou hit(%d) %s critically, and dealt %d damage.", playerRoll, enemy->name, critDamage);
     }
     else if (playerRoll == 1) {
         // Crit miss
+        printf("\nYour attack critically missed(%d) %s.", playerRoll, enemy->name);
     }
     else if (modifiedRoll > enemyArmorClass) {
         int damage = getPlayerDamage(player);
@@ -168,7 +172,6 @@ void fight(Character *player, Enemy *enemy) {
             addItem(player->inventory, enemy->lootTable[i]);
         }
     }
-
 }
 
 int roll() {

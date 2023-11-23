@@ -12,4 +12,6 @@ add_executable(ProgNZH_THSTAM main.c
         enemies.c
         encounter.c
         armor.c
+        consumable.c
+        consumable.h
 )
