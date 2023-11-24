@@ -1,14 +1,20 @@
 #include "encounter.h"
 #include "debugmalloc.h"
 
+extern inline int roll();
 
-void combatEncounter(Character *player, int nrOfEnemies) {
+void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
     Enemy **enemies = malloc(nrOfEnemies * sizeof(Enemy));
     int encounterLevel = player->level;
     int encounterExpAmount = encounterLevel * 100;
 
     for (int i = 0; i < nrOfEnemies; ++i) {
-        enemies[i] = generateEnemy(encounterLevel, WARRIOR, "");
+        int class = rand() % 3;
+        if (isBossBattle && i == 0) {
+            enemies[i] = generateEnemy(encounterLevel + 2, class, "Boss");
+        } else {
+            enemies[i] = generateEnemy(encounterLevel, class, "");
+        }
     }
 
     int playerRoll;
@@ -174,9 +180,11 @@ void fight(Character *player, Enemy *enemy) {
     }
 }
 
-int roll() {
-    return rand() % 20 + 1;
+void merchantEncounter(Character *player) {
+
 }
+
+
 
 
 

@@ -29,7 +29,7 @@ void displayStats(Character *player) {
 }
 
 // Constructs a new Character struct based on the class chosen by the user
-Character *newCharacter(char *name, Class class) {
+Character *newCharacter(char name[50], Class class) {
     // Allocate memory to player pointer
     Character *tempPlayer = malloc(sizeof(Character));
     setName(tempPlayer, name);
@@ -98,8 +98,6 @@ Character *newCharacter(char *name, Class class) {
 
     // Allocates memory for the first item
     tempPlayer->inventory = initInventory();
-    addItem(tempPlayer->inventory, HEALTH_POTION);
-    addItem(tempPlayer->inventory, MANA_POTION);
 
     tempPlayer->armors[0] = (Armor){ HEAD, 0, "Empty"};
     tempPlayer->armors[1] = (Armor){ CHEST, 0, "Empty"};
@@ -184,7 +182,6 @@ Character *initLoadedCharacter(CharacterBase *c) {
     }
 
     temp->canRest = c->canRest;
-    //TODO Load inventory
     temp->inventory = initInventory();
 
     return temp;
@@ -249,14 +246,35 @@ void updateStats(Character *player) {
         player->maxMana = 5;
     }
 
-    player->damageMin = getModifier(player->strength) * 3;
-    player->damageMax = getModifier(player->strength) * 4;
+    switch (player->class) {
+        case WARRIOR:
+            player->damageMin = getModifier(player->strength) * 2;
+            player->damageMax = getModifier(player->strength) * 3;
+            break;
+        case RANGER:
+            player->damageMin = getModifier(player->dexterity) * 2;
+            player->damageMax = getModifier(player->dexterity) * 3;
+            break;
+        case MAGE:
+            player->damageMin = getModifier(player->intelligence) * 2;
+            player->damageMax = getModifier(player->intelligence) * 3;
+            break;
+    }
 
-    player->expToNext = (player->level - 1) * 500 + 200;
+    player->expToNext = player->expToNext + player->level * 300;
 }
 
 void setCanRest(Character *player, int canRest) {
     player->canRest = canRest;
+}
+
+void displayEquippedItems(Character *player) {
+    printf("\nEquipment:");
+    printf("\nHead: %s, armor value: %d", player->armors[HEAD].name, player->armors[HEAD].value);
+    printf("\nChest: %s, armor value: %d", player->armors[CHEST].name, player->armors[CHEST].value);
+    printf("\nArms: %s, armor value: %d", player->armors[ARMS].name, player->armors[ARMS].value);
+    printf("\nLegs: %s, armor value: %d", player->armors[LEGS].name, player->armors[LEGS].value);
+    printf("\n");
 }
 
 

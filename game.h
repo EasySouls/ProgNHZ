@@ -31,6 +31,7 @@ void travel();
 void rest();
 void levelUp();
 void printStats();
+void equippedItems(Character *player);
 void saveCharacter(Character *c);
 void loadCharacter();
 void saveAndLoadSubmenu();

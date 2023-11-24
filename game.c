@@ -36,7 +36,6 @@ void mainMenu() {
     switch (input) {
         case 1:
             travel();
-            pressEnter();
             break;
         case 2:
             rest();
@@ -53,7 +52,8 @@ void mainMenu() {
             pressEnter();
             break;
         case 6:
-
+            equippedItems(character);
+            pressEnter();
             break;
         case 7:
             saveAndLoadSubmenu();
@@ -67,8 +67,31 @@ void mainMenu() {
     }
 }
 
+void equippedItems(Character *player) {
+    displayEquippedItems(player);
+}
+
+// Generates an encounter based on a random number, then checks whether the player is alive
+// after the encounter
 void travel() {
-    combatEncounter(character, 2);
+    int isBossBattle = character->distanceTraveled % 5 == 0 && character->distanceTraveled != 0;
+    combatEncounter(character, 2, isBossBattle);
+
+    if (character->hp <= 0) {
+        printf("\nYou died. Better luck next time!");
+        printf("\n -------- Press Enter to exit --------\n");
+        fflush(stdin);
+        while (getchar() != '\n')
+            ;
+        exitGame();
+    }
+    else {
+        if (character->exp >= character->expToNext) {
+            printf("\n%s can level up!\n", character->name);
+        }
+        character->distanceTraveled++;
+        pressEnter();
+    }
 }
 
 void rest() {
@@ -138,6 +161,14 @@ void saveCharacter(Character *c) {
             fprintf(outfile, "%d;%d;%s;",
                     character->armors[i].type, character->armors[i].value, character->armors[i].name);
         }
+        fprintf(outfile,"\n");
+        // Saving the inventory
+        Inventory *inv = character->inventory;
+        while (inv != NULL) {
+            Consumable *current = inv->current;
+            fprintf(outfile, "%d;", current->id);
+            inv = inv->next;
+        }
         fprintf(outfile, "\n");
         printf("\n%s saved successfully!\n", character->name);
     }
@@ -186,10 +217,17 @@ void loadCharacter() {
             fscanf(infile, "%[^;];", armorName);
             strcpy(base->armors[i].name, armorName);
         }
-        fclose(infile);
+        fscanf(infile, "\n");
 
         character = initLoadedCharacter(base);
 
+        // Reading the items' data
+        itemID tempId;
+        while (fscanf(infile, "%d;", &tempId) == 1) {
+            addItem(character->inventory, tempId);
+        }
+
+        fclose(infile);
         free(base);
 
         if (character == NULL) {
@@ -205,8 +243,10 @@ Character *createCharacter() {
     char name[50];
 
     printf("\nWhat will be the name of your character?");
+    printf("\n(max 49 characters)");
     printf("\n>>");
-    scanf("%49s", name);
+    fflush(stdin);
+    scanf("%[^\n]", name);
 
     // Class selection
     Class class;
@@ -262,7 +302,7 @@ void saveAndLoadSubmenu() {
     printf("[2]: Load saved character\n");
     printf("[3]: Create a new character\n");
     printf("[4]: Exit from submenu\n");
-    input = askForInt(1, 3);
+    input = askForInt(1, 4);
 
     switch (input) {
         case 1:
@@ -272,6 +312,8 @@ void saveAndLoadSubmenu() {
             loadCharacter();
             break;
         case 3:
+            freeInventoryFromMemory(character->inventory);
+            free(character);
             character = createCharacter();
             break;
         case 4:

@@ -1,7 +1,6 @@
 #ifndef PROGNZH_THSTAM_CONSUMABLE_H
 #define PROGNZH_THSTAM_CONSUMABLE_H
 
-//#include "character.h"
 struct playerStructure;
 
 typedef enum itemID {

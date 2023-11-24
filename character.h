@@ -74,6 +74,7 @@ Character* initLoadedCharacter(CharacterBase *c);
 
 void setName(Character *target, char name[50]);
 void displayStats(Character *player);
+void displayEquippedItems(Character *player);
 
 const char* getAttributeName(int index);
 int getModifier(int attr);

@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include "game.h"
-#include "io.h"
 #include "debugmalloc.h"
 
 int main(void) {
@@ -26,17 +25,5 @@ int main(void) {
      */
     while (isRunning) {
         mainMenu();
-    }
-
-    if (!quit) {
-        printf("\nYou died. Would you like to try again?");
-        printf("\n[1]: Yes");
-        printf("\n[2]: Nope");
-
-        input = askForInt(1, 2);
-
-        if (input == 1) {
-            // TODO restart the game
-        }
     }
 }
