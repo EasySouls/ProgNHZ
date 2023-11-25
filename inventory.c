@@ -53,7 +53,6 @@ Inventory *findItem(Inventory *inventory, enum itemID number) {
 // otherwise adds the item to the linked list
 // Automatically allocates memory for the newly added item
 void addItem(Inventory *inventory, enum itemID number) {
-    Inventory *previousNode;
     Inventory *searchResult;
 
     // See if item already exists
@@ -70,22 +69,64 @@ void addItem(Inventory *inventory, enum itemID number) {
     // Assign values to our item based on the enum parameter
     switch (number) {
         case HEALTH_POTION:
-            strcpy(item->name, "Health potion");
+            strcpy(item->name, "Health Potion");
             strcpy(item->description, "Potion that heals 20 health points");
             item->health = 20;
             item->mana = 0;
+            item->damage = 0;
             item->quantity = 1;
             item->id = number;
             item->use = restoreHp;
             break;
         case MANA_POTION:
-            strcpy(item->name, "Mana potion");
+            strcpy(item->name, "Mana Potion");
             strcpy(item->description, "Potion that restores 10 mana points");
             item->health = 0;
             item->mana = 10;
+            item->damage = 0;
             item->quantity = 1;
             item->id = number;
             item->use = restoreMana;
+            break;
+        case DEMON_OIL:
+            strcpy(item->name, "Demon Oil");
+            strcpy(item->description, "Grants temporary damage buff");
+            item->health = 0;
+            item->mana = 0;
+            item->damage = 3;
+            item->quantity = 1;
+            item->id = number;
+            item->use = addDamage;
+            break;
+        case LARGE_HEALTH_POTION:
+            strcpy(item->name, "Large Health Potion");
+            strcpy(item->description, "Potion that heals 40 health points");
+            item->health = 40;
+            item->mana = 0;
+            item->damage = 0;
+            item->quantity = 1;
+            item->id = number;
+            item->use = restoreHp;
+            break;
+        case LARGE_MANA_POTION:
+            strcpy(item->name, "Large Mana Potion");
+            strcpy(item->description, "Potion that restores 25 mana points");
+            item->health = 0;
+            item->mana = 25;
+            item->damage = 0;
+            item->quantity = 1;
+            item->id = number;
+            item->use = restoreMana;
+            break;
+        case HELLFIRE_OIL:
+            strcpy(item->name, "Hellfire Oil");
+            strcpy(item->description, "Grants greater temporary damage buff");
+            item->health = 0;
+            item->mana = 0;
+            item->damage = 6;
+            item->quantity = 1;
+            item->id = number;
+            item->use = addDamage;
             break;
     }
 
@@ -108,9 +149,6 @@ void addItem(Inventory *inventory, enum itemID number) {
         // Allocate memory for the next pointer
         inventory->next = malloc(sizeof(Inventory));
 
-        // Store location of the current node
-        previousNode = inventory;
-
         // Move to the next node
         inventory = inventory->next;
 
@@ -122,7 +160,6 @@ void addItem(Inventory *inventory, enum itemID number) {
 
 void removeItem(Inventory *inventory, enum itemID number) {
     Inventory *searchResult;
-    Inventory *previous;
     Inventory *next;
 
     // See if item already exists.
@@ -150,10 +187,17 @@ void removeItem(Inventory *inventory, enum itemID number) {
 const char *getItemName(itemID item) {
     switch (item) {
         case HEALTH_POTION:
-            return "Health potion";
-
+            return "Health Potion";
         case MANA_POTION:
-            return "Mana potion";
+            return "Mana Potion";
+        case DEMON_OIL:
+            return "Demon Oil";
+        case LARGE_HEALTH_POTION:
+            return "Large Health Potion";
+        case LARGE_MANA_POTION:
+            return "Large Mana Potion";
+        case HELLFIRE_OIL:
+            return "Hellfire Oil";
     }
 }
 
@@ -175,6 +219,24 @@ void freeInventoryFromMemory(Inventory *inventory) {
         free(temp->current);
         free(temp);
     }
+}
+
+int listItems(Inventory *inventory) {
+    int count = 0;
+    while (inventory != NULL) {
+        Consumable *current = inventory->current;
+        printf("\n[%d]: %s, Quantity: %d", ++count, current->name, current->quantity);
+        printf("\n      %s", current->description);
+        inventory = inventory->next;
+    }
+    return count;
+}
+
+Consumable *getItemAtPosition(int position, Inventory *inventory) {
+    for (int i = 0; i < position - 1; ++i) {
+        inventory = inventory->next;
+    }
+    return inventory->current;
 }
 
 

@@ -1,7 +1,9 @@
 #include "encounter.h"
 #include "debugmalloc.h"
 
-extern inline int roll();
+int roll() {
+    return rand() % 20 + 1;
+}
 
 void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
     Enemy **enemies = malloc(nrOfEnemies * sizeof(Enemy));
@@ -36,6 +38,8 @@ void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
             printf("[3]: Escape\n");
 
             choice = askForInt(1, 3);
+            int itemCount;
+            Consumable *selectedConsumable;
 
             switch (choice) {
                 case 1:
@@ -46,6 +50,11 @@ void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
                     break;
                 case 2:
                     // Use item
+                    itemCount = listItems(player->inventory);
+                    choice = askForInt(1, itemCount);
+                    selectedConsumable = getItemAtPosition(choice, player->inventory);
+                    selectedConsumable->use(player, selectedConsumable);
+                    removeItem(player->inventory, selectedConsumable->id);
                     break;
                 case 3:
                     // Escape
@@ -111,11 +120,19 @@ void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
     // In case of victory, the player gets the exp for the enemies
     // and for the encounter itself
     if (hasWon) {
-        for (int i = 0; i < nrOfEnemies; ++i) {
-            getExp(player, enemies[i]->expAmount);
+        if (isBossBattle) {
+            // TODO Implement the item upgrade system
+            printf("\nAfter defeating the boss, you discover a shining rock that he was carrying");
+            printf("\nKrystaltear collected!");
+            player->nrOfKrystaltears++;
         }
 
-        getExp(player, encounterExpAmount);
+        for (int i = 0; i < nrOfEnemies; ++i) {
+            earnExp(player, enemies[i]->expAmount);
+            earnGold(player, enemies[i]->goldAmount);
+        }
+
+        earnExp(player, encounterExpAmount);
         setCanRest(player, true);
     }
 
@@ -182,6 +199,20 @@ void fight(Character *player, Enemy *enemy) {
 
 void merchantEncounter(Character *player) {
 
+}
+
+void smithEncounter(Character *player) {
+    printf("\nAs you walk the bustling streets of Herton, you notice the pleasant hammering "
+           "of the local smithy and the sound of metal hitting metal. "
+           "Maybe it's time to replace your gear with a better one, you think, when taking a glance"
+           " at your worn-out equipment.");
+    printf("\n[1]: Check out what the blacksmith has to offer");
+    printf("\n[2]: Continue your adventures without upgrading your gear");
+    int choice = askForInt(1, 2);
+
+    switch (choice) {
+        
+    }
 }
 
 

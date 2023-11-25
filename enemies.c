@@ -7,12 +7,14 @@ int getDamage(Enemy *enemy) {
 
 Enemy *generateEnemy(int level, Class class, char *name) {
     Enemy *enemy = malloc(sizeof(Enemy));
+    enemy->level = level;
+
     switch (class) {
         case WARRIOR:
             if (strlen(name) > 0) {
                 setEnemyName(enemy, name);
             } else {
-                setEnemyName(enemy, "Warrior");
+                setEnemyName(enemy, "Barbarian");
             }
             enemy->strength = 11 + level / 2;
             enemy->dexterity = 10;
@@ -27,7 +29,7 @@ Enemy *generateEnemy(int level, Class class, char *name) {
             if (strlen(name) > 0) {
                 setEnemyName(enemy, name);
             } else {
-                setEnemyName(enemy, "Warrior");
+                setEnemyName(enemy, "Archer");
             }
             enemy->strength = 12;
             enemy->dexterity = 12 + level / 2;
@@ -42,7 +44,7 @@ Enemy *generateEnemy(int level, Class class, char *name) {
             if (strlen(name) > 0) {
                 setEnemyName(enemy, name);
             } else {
-                setEnemyName(enemy, "Warrior");
+                setEnemyName(enemy, "Sorcerer");
             }
             enemy->strength = 8;
             enemy->dexterity = 10;
@@ -55,8 +57,7 @@ Enemy *generateEnemy(int level, Class class, char *name) {
             break;
     }
 
-    enemy->level = 1;
-    enemy->maxHp = (enemy->level * 20) + 5 * getModifier(enemy->constitution);
+    enemy->maxHp = (enemy->level * 12) + 5 * getModifier(enemy->constitution);
 
     int possibleMana = 5 + 3 * getModifier(enemy->intelligence) + 2 * getModifier(enemy->wisdom);
     if (possibleMana > 5) {
@@ -71,12 +72,14 @@ Enemy *generateEnemy(int level, Class class, char *name) {
     enemy->class = class;
 
     enemy->expAmount = enemy->level * 20;
+    enemy->goldAmount = (rand() % 10 + 1) * enemy->level;
 
-    // TODO Generate loot randomly
-    enemy->lootCount = 2;
+    enemy->lootCount = rand() % 2 + enemy->level / 3;
     enemy->lootTable = malloc(enemy->lootCount * sizeof(itemID));
-    enemy->lootTable[0] = HEALTH_POTION;
-    enemy->lootTable[1] = MANA_POTION;
+    for (int i = 0; i < enemy->lootCount; ++i) {
+        itemID loot = rand() % 3;
+        enemy->lootTable[i] = loot;
+    }
 
     return enemy;
 }

@@ -24,6 +24,7 @@ typedef struct playerStructure {
 
     Inventory *inventory;
     Armor armors[4];
+    int nrOfKrystaltears;
 
     int maxHp;
     int hp;
@@ -58,6 +59,7 @@ typedef struct characterBase {
 
     Class class;
     Armor armors[4];
+    int nrOfKrystaltears;
 
     int strength;
     int dexterity;
@@ -81,7 +83,8 @@ int getModifier(int attr);
 int getArmorClass(Character *player);
 int getPlayerDamage(Character *player);
 
-void getExp(Character *player, int amount);
+void earnExp(Character *player, int amount);
+void earnGold(Character *player, int amount);
 void levelUpCharacter(Character *player, int attribute);
 void updateStats(Character *player);
 void setCanRest(Character *player, int canRest);

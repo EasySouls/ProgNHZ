@@ -18,6 +18,17 @@ void initGame() {
     if (character == NULL) {
         character = createCharacter();
     }
+    else {
+        printf("\nFound a previous saved character: %s", character->name);
+        printf("\n[1]: Load saved character");
+        printf("\n[2]: Create new character");
+        input = askForInt(1, 2);
+        if (input == 2) {
+            freeInventoryFromMemory(character->inventory);
+            free(character);
+            character = createCharacter();
+        }
+    }
 }
 
 void mainMenu() {
@@ -74,8 +85,12 @@ void equippedItems(Character *player) {
 // Generates an encounter based on a random number, then checks whether the player is alive
 // after the encounter
 void travel() {
-    int isBossBattle = character->distanceTraveled % 5 == 0 && character->distanceTraveled != 0;
+    int isBossBattle = character->distanceTraveled % 3 == 0 && character->distanceTraveled != 0;
     combatEncounter(character, 2, isBossBattle);
+
+    // This needs to be called after every encounter, so the player's
+    // temporary buffs are reset
+    updateStats(character);
 
     if (character->hp <= 0) {
         printf("\nYou died. Better luck next time!");
@@ -83,7 +98,17 @@ void travel() {
         fflush(stdin);
         while (getchar() != '\n')
             ;
-        exitGame();
+
+        printf("\n[0]: Exit");
+        printf("\n[1] Create a new character");
+        input = askForInt(0, 1);
+        if (input == 1) {
+            freeInventoryFromMemory(character->inventory);
+            free(character);
+            character = createCharacter();
+        } else {
+            exitGame();
+        }
     }
     else {
         if (character->exp >= character->expToNext) {
@@ -153,23 +178,24 @@ void saveCharacter(Character *c) {
         perror("The current character is null. ");
     } else {
         // Writing to the file
-        fprintf(outfile, "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
+        fprintf(outfile, "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
                 c->name, c->level, c->exp, c->distanceTraveled, c->gold, c->hp, c->mana,
-                c->class, c->strength, c->dexterity, c->constitution, c->intelligence, c->wisdom, c->charisma, c->canRest);
+                c->class, c->strength, c->dexterity, c->constitution, c->intelligence,
+                c->wisdom, c->charisma,c->nrOfKrystaltears, c->canRest);
         // Saving the armors
         for (int i = 0; i < 4; ++i) {
             fprintf(outfile, "%d;%d;%s;",
                     character->armors[i].type, character->armors[i].value, character->armors[i].name);
         }
         fprintf(outfile,"\n");
+
         // Saving the inventory
         Inventory *inv = character->inventory;
-        while (inv != NULL) {
+        while (inv != NULL && inv->current != NULL) {
             Consumable *current = inv->current;
-            fprintf(outfile, "%d;", current->id);
+            fprintf(outfile, "%d;%d;", current->id, current->quantity);
             inv = inv->next;
         }
-        fprintf(outfile, "\n");
         printf("\n%s saved successfully!\n", character->name);
     }
 
@@ -208,8 +234,10 @@ void loadCharacter() {
         fscanf(infile, "%[^;];", name);
         strcpy(base->name, name);
 
-        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;", &base->level, &base->exp, &base->distanceTraveled, &base->gold, &base->hp,
-               &base->mana, &base->class, &base->strength, &base->dexterity, &base->constitution, &base->intelligence, &base->wisdom, &base->charisma, &base->canRest);
+        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
+               &base->level, &base->exp, &base->distanceTraveled, &base->gold, &base->hp,
+               &base->mana, &base->class, &base->strength, &base->dexterity, &base->constitution,
+               &base->intelligence, &base->wisdom, &base->charisma, &base->nrOfKrystaltears, &base->canRest);
         // Reading the armors' data
         for (int i = 0; i < 4; ++i) {
             fscanf(infile, "%d;%d;", &base->armors[i].type, &base->armors[i].value);
@@ -221,10 +249,13 @@ void loadCharacter() {
 
         character = initLoadedCharacter(base);
 
-        // Reading the items' data
+        // Loading the inventory
         itemID tempId;
-        while (fscanf(infile, "%d;", &tempId) == 1) {
-            addItem(character->inventory, tempId);
+        int quantity;
+        while (fscanf(infile, "%d;%d;", &tempId, &quantity) == 2) {
+            for (int i = 0; i < quantity; ++i) {
+                addItem(character->inventory, tempId);
+            }
         }
 
         fclose(infile);
@@ -309,6 +340,8 @@ void saveAndLoadSubmenu() {
             saveCharacter(character);
             break;
         case 2:
+            freeInventoryFromMemory(character->inventory);
+            free(character);
             loadCharacter();
             break;
         case 3:
@@ -334,14 +367,3 @@ void exitGame() {
     isRunning = false;
     quit = true;
 }
-
-
-
-
-
-
-
-
-
-
-

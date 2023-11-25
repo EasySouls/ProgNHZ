@@ -8,12 +8,11 @@
 
 void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle);
 void merchantEncounter(Character *player);
+void smithEncounter(Character *player);
 
 void listEnemies(Enemy **enemies, int nrOfEnemies);
 void fight(Character *player, Enemy *enemy);
 
-inline int roll() {
-    return rand() % 20 + 1;
-}
+int roll();
 
 #endif //PROGNZH_THSTAM_ENCOUNTER_H

@@ -13,6 +13,8 @@ Inventory* initInventory();
 void displayInventory(Inventory *inventory);
 void addItem(Inventory *inventory, enum itemID number);
 void removeItem(Inventory *inventory, enum itemID number);
+int listItems(Inventory *inventory);
+Consumable* getItemAtPosition(int position, Inventory *inventory);
 
 Inventory* findItem(Inventory *inventory, enum itemID number);
 

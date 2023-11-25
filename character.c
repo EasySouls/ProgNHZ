@@ -14,17 +14,18 @@ void displayStats(Character *player) {
     printf("\nName: %s (Lvl: %d)", player->name, player->level);
     printf("\nExp: %d / %d", player->exp, player->expToNext);
     printf("\nDistance traveled: %d", player->distanceTraveled);
-    printf("\nGold: %d", player->gold);
+    printf("\nGold: %d\n", player->gold);
     printf("\nHp: %d / %d", player->hp, player->maxHp);
-    printf("\nMana: %d / %d", player->mana, player->maxMana);
+    printf("\nMana: %d / %d\n", player->mana, player->maxMana);
     printf("\nStrength: %d", player->strength);
     printf("\nDexterity: %d", player->dexterity);
     printf("\nConstitution: %d", player->constitution);
     printf("\nIntelligence: %d", player->intelligence);
     printf("\nWisdom: %d", player->wisdom);
-    printf("\nCharisma: %d", player->charisma);
+    printf("\nCharisma: %d\n", player->charisma);
     printf("\nDamage: %d - %d", player->damageMin, player->damageMax);
     printf("\nArmor: %d", getArmorClass(player));
+    printf("\nNumber of Krystaltears held: %d", player->nrOfKrystaltears);
     printf("\n");
 }
 
@@ -33,6 +34,8 @@ Character *newCharacter(char name[50], Class class) {
     // Allocate memory to player pointer
     Character *tempPlayer = malloc(sizeof(Character));
     setName(tempPlayer, name);
+
+    // TODO Add a unique ability to each class
 
     // Assign stats based on the chosen Class
     switch (class) {
@@ -94,7 +97,8 @@ Character *newCharacter(char name[50], Class class) {
     tempPlayer->distanceTraveled = 0;
     tempPlayer->exp = 0;
     tempPlayer->expToNext = 200;
-    tempPlayer->gold = 100;
+    tempPlayer->gold = 0;
+    tempPlayer->nrOfKrystaltears = 0;
 
     // Allocates memory for the first item
     tempPlayer->inventory = initInventory();
@@ -138,6 +142,7 @@ Character *initLoadedCharacter(CharacterBase *c) {
     temp->expToNext = (c->level - 1) * 500 + 200;
     temp->distanceTraveled = c->distanceTraveled;
     temp->gold = c->gold;
+    temp->nrOfKrystaltears = c->nrOfKrystaltears;
 
     temp->class = c->class;
     temp->maxHp = (c->level * 20) + 5 * getModifier(c->constitution);
@@ -201,8 +206,12 @@ int getPlayerDamage(Character *player) {
     return rand() % (player->damageMax - player->damageMin) + player->damageMin;
 }
 
-void getExp(Character *player, int amount) {
+void earnExp(Character *player, int amount) {
     player->exp += amount;
+}
+
+void earnGold(Character *player, int amount) {
+    player->gold += amount;
 }
 
 // param attribute needs to be between 1 and 6
@@ -260,8 +269,6 @@ void updateStats(Character *player) {
             player->damageMax = getModifier(player->intelligence) * 3;
             break;
     }
-
-    player->expToNext = player->expToNext + player->level * 300;
 }
 
 void setCanRest(Character *player, int canRest) {
@@ -276,5 +283,7 @@ void displayEquippedItems(Character *player) {
     printf("\nLegs: %s, armor value: %d", player->armors[LEGS].name, player->armors[LEGS].value);
     printf("\n");
 }
+
+
 
 
