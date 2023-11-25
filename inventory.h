@@ -11,14 +11,16 @@ typedef struct itemNodeStruct {
 Inventory* initInventory();
 
 void displayInventory(Inventory *inventory);
-void addItem(Inventory *inventory, enum itemID number);
-void removeItem(Inventory *inventory, enum itemID number);
+void addItem(Inventory *inventory, itemID number);
+void removeItem(Inventory *inventory, itemID number);
 int listItems(Inventory *inventory);
 Consumable* getItemAtPosition(int position, Inventory *inventory);
 
-Inventory* findItem(Inventory *inventory, enum itemID number);
+Inventory* findItem(Inventory *inventory, itemID number);
 
 const char* getItemName(itemID item);
+int getItemPrice(itemID item);
+int listMerchantItems(Inventory *inv);
 
 void freeInventoryFromMemory(Inventory *inventory);
 

@@ -12,7 +12,7 @@ typedef enum itemID {
     HELLFIRE_OIL
 } itemID;
 
-int consumablePrices[] = { 200, 150, 300, 500, 400, 650};
+extern int consumablePrices[6];
 
 typedef struct consumableStruct {
     char name[50];

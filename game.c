@@ -6,7 +6,6 @@
 const char charactersFile[] = "characters.txt";
 
 bool isRunning = false;
-bool quit = false;
 int input = 0;
 
 Character *character = NULL;
@@ -85,37 +84,49 @@ void equippedItems(Character *player) {
 // Generates an encounter based on a random number, then checks whether the player is alive
 // after the encounter
 void travel() {
-    int isBossBattle = character->distanceTraveled % 3 == 0 && character->distanceTraveled != 0;
-    combatEncounter(character, 2, isBossBattle);
-
-    // This needs to be called after every encounter, so the player's
-    // temporary buffs are reset
-    updateStats(character);
-
-    if (character->hp <= 0) {
-        printf("\nYou died. Better luck next time!");
-        printf("\n -------- Press Enter to exit --------\n");
-        fflush(stdin);
-        while (getchar() != '\n')
-            ;
-
-        printf("\n[0]: Exit");
-        printf("\n[1] Create a new character");
-        input = askForInt(0, 1);
-        if (input == 1) {
-            freeInventoryFromMemory(character->inventory);
-            free(character);
-            character = createCharacter();
-        } else {
-            exitGame();
-        }
+    int encounterType = rand() % 12;
+    if (encounterType >= 10) {
+        // 2 out of 12 chance to be able to upgrade equipment
+        smithEncounter(character);
+    }
+    else if (encounterType >= 7) {
+        // 3 out of 12 chance to buy potions
+        merchantEncounter(character);
     }
     else {
-        if (character->exp >= character->expToNext) {
-            printf("\n%s can level up!\n", character->name);
+        // 7 out of 12 chance to fight enemies
+        int isBossBattle = character->distanceTraveled % 3 == 0 && character->distanceTraveled != 0;
+        combatEncounter(character, 2, isBossBattle);
+
+        // This needs to be called after every encounter, so the player's
+        // temporary buffs are reset
+        updateStats(character);
+
+        if (character->hp <= 0) {
+            printf("\nYou died. Better luck next time!");
+            printf("\n -------- Press Enter to exit --------\n");
+            fflush(stdin);
+            while (getchar() != '\n')
+                ;
+
+            printf("\n[0]: Exit");
+            printf("\n[1] Create a new character");
+            input = askForInt(0, 1);
+            if (input == 1) {
+                freeInventoryFromMemory(character->inventory);
+                free(character);
+                character = createCharacter();
+            } else {
+                exitGame();
+            }
         }
-        character->distanceTraveled++;
-        pressEnter();
+        else {
+            if (character->exp >= character->expToNext) {
+                printf("\n%s can level up!\n", character->name);
+            }
+            character->distanceTraveled++;
+            pressEnter();
+        }
     }
 }
 
@@ -156,7 +167,6 @@ void levelUp() {
     }
 
     input = askForInt(1, 6);
-    character->exp -= character->expToNext;
     levelUpCharacter(character, input);
     updateStats(character);
 }
@@ -234,13 +244,13 @@ void loadCharacter() {
         fscanf(infile, "%[^;];", name);
         strcpy(base->name, name);
 
-        fscanf(infile, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
+        fscanf(infile, "%d;%d;%d;%d;%d;%d;%u;%d;%d;%d;%d;%d;%d;%d;%d;",
                &base->level, &base->exp, &base->distanceTraveled, &base->gold, &base->hp,
                &base->mana, &base->class, &base->strength, &base->dexterity, &base->constitution,
                &base->intelligence, &base->wisdom, &base->charisma, &base->nrOfKrystaltears, &base->canRest);
         // Reading the armors' data
         for (int i = 0; i < 4; ++i) {
-            fscanf(infile, "%d;%d;", &base->armors[i].type, &base->armors[i].value);
+            fscanf(infile, "%u;%d;", &base->armors[i].type, &base->armors[i].value);
             char armorName[50];
             fscanf(infile, "%[^;];", armorName);
             strcpy(base->armors[i].name, armorName);
@@ -252,7 +262,7 @@ void loadCharacter() {
         // Loading the inventory
         itemID tempId;
         int quantity;
-        while (fscanf(infile, "%d;%d;", &tempId, &quantity) == 2) {
+        while (fscanf(infile, "%u;%d;", &tempId, &quantity) == 2) {
             for (int i = 0; i < quantity; ++i) {
                 addItem(character->inventory, tempId);
             }
@@ -365,5 +375,4 @@ void exitGame() {
     freeInventoryFromMemory(character->inventory);
     free(character);
     isRunning = false;
-    quit = true;
 }

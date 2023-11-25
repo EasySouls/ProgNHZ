@@ -2,7 +2,7 @@
 #include "debugmalloc.h"
 
 // Sets the target Character struct's name using strcpy
-void setName(Character *target, char *name) {
+void setName(Character *target, const char *name) {
     strcpy(target->name, name);
 }
 
@@ -35,15 +35,13 @@ Character *newCharacter(char name[50], Class class) {
     Character *tempPlayer = malloc(sizeof(Character));
     setName(tempPlayer, name);
 
-    // TODO Add a unique ability to each class
-
     // Assign stats based on the chosen Class
     switch (class) {
         case WARRIOR:
             tempPlayer->class = WARRIOR;
-            tempPlayer->strength = 16;
+            tempPlayer->strength = 14;
             tempPlayer->dexterity = 12;
-            tempPlayer->constitution = 15;
+            tempPlayer->constitution = 16;
             tempPlayer->intelligence = 8;
             tempPlayer->wisdom = 9;
             tempPlayer->charisma = 13;
@@ -54,8 +52,8 @@ Character *newCharacter(char name[50], Class class) {
         case RANGER:
             tempPlayer->class = RANGER;
             tempPlayer->strength = 14;
-            tempPlayer->dexterity = 18;
-            tempPlayer->constitution = 12;
+            tempPlayer->dexterity = 16;
+            tempPlayer->constitution = 13;
             tempPlayer->intelligence = 10;
             tempPlayer->wisdom = 13;
             tempPlayer->charisma = 12;
@@ -68,7 +66,7 @@ Character *newCharacter(char name[50], Class class) {
             tempPlayer->strength = 8;
             tempPlayer->dexterity = 11;
             tempPlayer->constitution = 8;
-            tempPlayer->intelligence = 17;
+            tempPlayer->intelligence = 18;
             tempPlayer->wisdom = 15;
             tempPlayer->charisma = 14;
 
@@ -109,6 +107,7 @@ Character *newCharacter(char name[50], Class class) {
     tempPlayer->armors[3] = (Armor){ LEGS, 0, "Empty"};
 
     tempPlayer->canRest = false;
+    tempPlayer->class = class;
 
     return tempPlayer;
 }
@@ -131,7 +130,8 @@ Character *initLoadedCharacter(CharacterBase *c) {
         perror("CharacterBase is nullptr in character::initLoadedCharacter");
 
         // In case of a nullptr, it returns a newly created character
-        return newCharacter("Unknown", WARRIOR);
+        char name[50] = "Unknown Hero";
+        return newCharacter(name, WARRIOR);
     }
 
     Character *temp = malloc(sizeof(Character));
@@ -241,7 +241,7 @@ void levelUpCharacter(Character *player, int attribute) {
 
     player->exp -= player->expToNext;
     player->level++;
-    player->expToNext = player->expToNext + player->level * 300;
+    player->expToNext = (player->level - 1) * 500 + 200;
 }
 
 // This method needs to be called whenever a character's main stats change, otherwise the others stats
@@ -283,7 +283,3 @@ void displayEquippedItems(Character *player) {
     printf("\nLegs: %s, armor value: %d", player->armors[LEGS].name, player->armors[LEGS].value);
     printf("\n");
 }
-
-
-
-

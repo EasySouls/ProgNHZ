@@ -6,14 +6,17 @@ int roll() {
 }
 
 void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
+    // Initiate the enemies
     Enemy **enemies = malloc(nrOfEnemies * sizeof(Enemy));
     int encounterLevel = player->level;
     int encounterExpAmount = encounterLevel * 100;
 
     for (int i = 0; i < nrOfEnemies; ++i) {
         int class = rand() % 3;
+        // If the current encounter is a boss batle, the first enemy
+        // will be one level above the player
         if (isBossBattle && i == 0) {
-            enemies[i] = generateEnemy(encounterLevel + 2, class, "Boss");
+            enemies[i] = generateEnemy(encounterLevel + 1, class, "Boss");
         } else {
             enemies[i] = generateEnemy(encounterLevel, class, "");
         }
@@ -63,8 +66,7 @@ void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
                         printf("\nYou managed to escape from combat (%d).\n", playerRoll);
                         escaped = true;
                         setCanRest(player, true);
-                    }
-                    else {
+                    } else {
                         printf("\nYou failed to escape (%d).\n", playerRoll);
                     }
                     break;
@@ -121,19 +123,23 @@ void combatEncounter(Character *player, int nrOfEnemies, bool isBossBattle) {
     // and for the encounter itself
     if (hasWon) {
         if (isBossBattle) {
-            // TODO Implement the item upgrade system
             printf("\nAfter defeating the boss, you discover a shining rock that he was carrying");
             printf("\nKrystaltear collected!");
             player->nrOfKrystaltears++;
         }
 
+        int expTotal = 0, goldTotal = 0;
         for (int i = 0; i < nrOfEnemies; ++i) {
-            earnExp(player, enemies[i]->expAmount);
-            earnGold(player, enemies[i]->goldAmount);
+            expTotal += enemies[i]->expAmount;
+            goldTotal += enemies[i]->goldAmount;
         }
-
-        earnExp(player, encounterExpAmount);
+        expTotal += encounterExpAmount;
+        earnGold(player, goldTotal);
+        earnExp(player, expTotal);
         setCanRest(player, true);
+
+        printf("\n%s has earned %d exp.", player->name, expTotal);
+        printf("\n%s has earned %d gold.", player->name, goldTotal);
     }
 
     // Frees the loot table of the enemies, then the enemies pointer itself
@@ -170,21 +176,18 @@ void fight(Character *player, Enemy *enemy) {
     }
 
     if (playerRoll == 20) {
-         // Crit
-         int critDamage = getPlayerDamage(player) * 2;
-         enemy->hp -= critDamage;
+        // Crit
+        int critDamage = getPlayerDamage(player) * 2;
+        enemy->hp -= critDamage;
         printf("\nYou hit(%d) %s critically, and dealt %d damage.", playerRoll, enemy->name, critDamage);
-    }
-    else if (playerRoll == 1) {
+    } else if (playerRoll == 1) {
         // Crit miss
         printf("\nYour attack critically missed(%d) %s.", playerRoll, enemy->name);
-    }
-    else if (modifiedRoll > enemyArmorClass) {
+    } else if (modifiedRoll > enemyArmorClass) {
         int damage = getPlayerDamage(player);
         enemy->hp -= damage;
         printf("\nYou hit(%d) %s, and dealt %d damage.", playerRoll, enemy->name, damage);
-    }
-    else {
+    } else {
         printf("\nYour attack missed(%d) %s.", playerRoll, enemy->name);
     }
 
@@ -198,7 +201,46 @@ void fight(Character *player, Enemy *enemy) {
 }
 
 void merchantEncounter(Character *player) {
+    printf("\nYou find a merchant along the road");
+    printf("\n[1]: Look at the merchant's wares");
+    printf("\n[2]: Continue your adventures");
 
+    Inventory *merchantInv = initInventory();
+    // The total number of the merchant's items
+    int itemCount = player->level / 3 + 2;
+    enum itemID randomItem;
+    for (int i = 1; i <= itemCount; ++i) {
+        // If the player is past level 3, this enables the
+        // generation of the enchanced items
+        if (player->level > 3) {
+            randomItem = rand() % 6;
+        } else {
+            randomItem = rand() % 3;
+        }
+        addItem(merchantInv, randomItem);
+    }
+
+    while (askForInt(1, 2) == 1) {
+        itemCount = listMerchantItems(merchantInv);
+        int choice = askForInt(1, itemCount);
+        Consumable *selectedItem = getItemAtPosition(choice, merchantInv);
+        if (player->gold < getItemPrice(selectedItem->id)) {
+            int goldNeeded = getItemPrice(selectedItem->id) - player->gold;
+            printf("\nYou don't have enought gold for a %s. You need %d more coins.", selectedItem->name, goldNeeded);
+        } else {
+            removeItem(merchantInv, selectedItem->id);
+            addItem(player->inventory, selectedItem->id);
+            player->gold -= getItemPrice(selectedItem->id);
+            printf("\nYou successfully bought a %s", selectedItem->name);
+            printf("\nRemaining gold: %d", player->gold);
+        }
+
+        printf("\n");
+        printf("\n[1]: Continue shopping");
+        printf("\n[2]: Leave the merchant's stall");
+    }
+
+    freeInventoryFromMemory(merchantInv);
 }
 
 void smithEncounter(Character *player) {
@@ -206,12 +248,26 @@ void smithEncounter(Character *player) {
            "of the local smithy and the sound of metal hitting metal. "
            "Maybe it's time to replace your gear with a better one, you think, when taking a glance"
            " at your worn-out equipment.");
-    printf("\n[1]: Check out what the blacksmith has to offer");
+    printf("\n[1]: Upgrade your gear (Krystaltear needed)");
     printf("\n[2]: Continue your adventures without upgrading your gear");
     int choice = askForInt(1, 2);
 
-    switch (choice) {
-        
+    if (choice == 1) {
+        for (int i = 0; i < 4; ++i) {
+            printf("\n[%d] %s --> %s", i + 1, player->armors[i].name,
+                   getNextLevelArmor(player->armors[i].type, player->armors[i].value).name);
+        }
+        choice = askForInt(1, 4);
+        if (player->nrOfKrystaltears < 1) {
+            printf("\nUnfortunately, you don't have any Krystaltear. Continue your adventures"
+                   " to collect this rare ore.");
+        } else {
+            player->armors[choice - 1] = getNextLevelArmor(choice - 1, player->armors[choice - 1].value);
+            player->nrOfKrystaltears--;
+        }
+    } else {
+        printf("\nYou decide today is not the day you part with your beloved gear, either by the "
+               "lack of Krystaltear or gold in your purse.");
     }
 }
 

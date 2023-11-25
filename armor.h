@@ -14,4 +14,6 @@ typedef struct armorStruct {
     char name[50];
 } Armor;
 
+Armor getNextLevelArmor(enum armorType type, int value);
+
 #endif //PROGNZH_THSTAM_ARMOR_H

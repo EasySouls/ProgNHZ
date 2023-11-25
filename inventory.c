@@ -199,6 +199,7 @@ const char *getItemName(itemID item) {
         case HELLFIRE_OIL:
             return "Hellfire Oil";
     }
+    return "";
 }
 
 Inventory* initInventory() {
@@ -216,7 +217,9 @@ void freeInventoryFromMemory(Inventory *inventory) {
     while (inventory != NULL) {
         temp = inventory;
         inventory = inventory->next;
-        free(temp->current);
+        if (temp->current != NULL) {
+            free(temp->current);
+        }
         free(temp);
     }
 }
@@ -232,11 +235,28 @@ int listItems(Inventory *inventory) {
     return count;
 }
 
+int listMerchantItems(Inventory *inv) {
+    int count = 0;
+    while (inv != NULL) {
+        Consumable *current = inv->current;
+        printf("\n[%d]: %s, Quantity: %d, Price: %d gold",
+               ++count, current->name, current->quantity, getItemPrice(current->id));
+        inv = inv->next;
+    }
+    return count;
+}
+
 Consumable *getItemAtPosition(int position, Inventory *inventory) {
     for (int i = 0; i < position - 1; ++i) {
         inventory = inventory->next;
     }
     return inventory->current;
 }
+
+int getItemPrice(itemID item) {
+    return consumablePrices[item];
+}
+
+
 
 

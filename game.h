@@ -14,7 +14,6 @@ extern const char charactersFile[];
 // Game logic
 
 extern bool isRunning;
-extern bool quit;
 extern int input;
 
 // Characters

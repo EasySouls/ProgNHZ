@@ -3,6 +3,8 @@
 
 #include "debugmalloc.h"
 
+ int consumablePrices[6]  = { 200, 150, 300, 500, 400, 650};
+
 void restoreHp(struct playerStructure *target, Consumable *self) {
     target->hp += self->health;
     if (target->hp > target->maxHp)

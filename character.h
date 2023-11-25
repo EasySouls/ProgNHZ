@@ -74,7 +74,7 @@ typedef struct characterBase {
 Character* newCharacter(char name[50], Class class);
 Character* initLoadedCharacter(CharacterBase *c);
 
-void setName(Character *target, char name[50]);
+void setName(Character *target,const char *name);
 void displayStats(Character *player);
 void displayEquippedItems(Character *player);
 
